@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Payslip Viewer</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div class="container">
+    <h2>Employee Payslip Portal</h2>
+
+    <select id="employeeSelect">
+      <option value="">-- Select Employee --</option>
+    </select>
+
+    <input type="password" id="passwordInput" placeholder="Enter Password" style="display:none;">
+    <button id="submitBtn" style="display:none;">View Payslip</button>
+
+    <div id="payslip" class="payslip-box" style="display:none;"></div>
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>
