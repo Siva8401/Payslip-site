@@ -121,30 +121,30 @@
     <button id="submitBtn" style="display:none;">View Payslip</button>
     <div id="payslip" class="payslip"></div>
     <div id="footerPayslip" class="footer-payslip" style="display:none;">
-      <p><strong>Company:</strong> Vijaya Kitchen Pvt Ltd</p>
-      <p><strong>Designation:</strong> Help Desk Engineer</p>
+      <p><strong>Company:</strong> <span id="company"></span></p>
+      <p><strong>Designation:</strong> <span id="designation"></span></p>
       <p><strong>Month:</strong> July 2023 | <strong>Leave Taken:</strong> 1 day</p>
-      <p><strong>Days Worked:</strong> 25</p>
+      <p><strong>Days Worked:</strong> <span id="daysWorked"></span></p>
       <div style="display:flex; justify-content:space-between; margin-top:1rem;">
         <div style="text-align:left;">
           <h4>Earned Salary</h4>
-          <p>Basic / DA: ₹5000.00</p>
-          <p>HRA: ₹1500.00</p>
-          <p>CCA: ₹900.00</p>
-          <p>Medical Allowance: ₹1250.00</p>
-          <p>Special Allowance: ₹1360.00</p>
-          <p><strong>Total Earnings:</strong> ₹10010.00</p>
+          <p>Basic / DA: ₹<span id="basic"></span></p>
+          <p>HRA: ₹<span id="hra"></span></p>
+          <p>CCA: ₹<span id="cca"></span></p>
+          <p>Medical Allowance: ₹<span id="medical"></span></p>
+          <p>Special Allowance: ₹<span id="special"></span></p>
+          <p><strong>Total Earnings:</strong> ₹<span id="totalEarnings"></span></p>
         </div>
         <div style="text-align:left;">
           <h4>Deductions</h4>
-          <p>PF: ₹577.00</p>
-          <p>ESI: ₹72.00</p>
-          <p>PT: ₹100.00</p>
-          <p><strong>Total Deductions:</strong> ₹749.00</p>
+          <p>PF: ₹<span id="pf"></span></p>
+          <p>ESI: ₹<span id="esi"></span></p>
+          <p>PT: ₹<span id="pt"></span></p>
+          <p><strong>Total Deductions:</strong> ₹<span id="totalDeductions"></span></p>
         </div>
       </div>
-      <p><strong>Leave Day Deduction:</strong> ₹385.00</p>
-      <p><strong>Take Home Salary:</strong> ₹8876.00</p>
+      <p><strong>Leave Day Deduction:</strong> ₹<span id="leaveDeduction"></span></p>
+      <p><strong>Take Home Salary:</strong> ₹<span id="takeHome"></span></p>
       <br>
       <div style="display:flex; justify-content:space-between; margin-top:2rem;">
         <span>_______________________<br>Authorized Signatory</span>
@@ -186,12 +186,35 @@
       const selectedName = document.getElementById("employeeSelect").value;
       const enteredPassword = document.getElementById("passwordInput").value;
 
-      const matchedEmp = employees.find(emp => emp["Employee Name"] === selectedName && emp["Password"] === enteredPassword);
+      const emp = employees.find(e => e["Employee Name"] === selectedName && e["Password"] === enteredPassword);
 
-      if (matchedEmp) {
+      if (emp) {
         document.getElementById("payslip").style.display = "block";
         document.getElementById("footerPayslip").style.display = "block";
-        // You can update this section to fill in dynamic fields from matchedEmp
+
+        document.getElementById("company").textContent = emp["Company"] || "-";
+        document.getElementById("designation").textContent = emp["Designation"] || "-";
+        document.getElementById("daysWorked").textContent = emp["No of Days Worked Employee"] || "-";
+
+        document.getElementById("basic").textContent = emp["Basic"] || "0";
+        document.getElementById("hra").textContent = emp["HRA"] || "0";
+        document.getElementById("cca").textContent = emp["CCA"] || "0";
+        document.getElementById("medical").textContent = emp["Medical"] || "0";
+        document.getElementById("special").textContent = emp["Special"] || "0";
+
+        const totalEarn = parseFloat(emp["Basic"] || 0) + parseFloat(emp["HRA"] || 0) + parseFloat(emp["CCA"] || 0) + parseFloat(emp["Medical"] || 0) + parseFloat(emp["Special"] || 0);
+        document.getElementById("totalEarnings").textContent = totalEarn.toFixed(2);
+
+        document.getElementById("pf").textContent = emp["PF"] || "0";
+        document.getElementById("esi").textContent = emp["ESI"] || "0";
+        document.getElementById("pt").textContent = emp["PT"] || "0";
+
+        const totalDeduct = parseFloat(emp["PF"] || 0) + parseFloat(emp["ESI"] || 0) + parseFloat(emp["PT"] || 0);
+        document.getElementById("totalDeductions").textContent = totalDeduct.toFixed(2);
+
+        document.getElementById("leaveDeduction").textContent = emp["Total"] || "0";
+        document.getElementById("takeHome").textContent = emp["Take Home Salary"] || "0";
+
       } else {
         alert("Invalid password. Please try again.");
       }
