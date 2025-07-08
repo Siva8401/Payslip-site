@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Vijaya Pay | Employee Payslip Viewer</title>
+  <title>MCC | Employee Payslip </title>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
   <style>
@@ -84,32 +84,6 @@
       margin-top: 0;
       color: var(--primary);
     }
-    .section {
-      margin-top: 1.5rem;
-    }
-    .section h4 {
-      color: var(--gray);
-      margin-bottom: 0.5rem;
-    }
-    .row {
-      display: flex;
-      justify-content: space-between;
-      padding: 0.25rem 0;
-    }
-    .label {
-      font-weight: 600;
-    }
-    .footer-payslip {
-      background: #ffffff;
-      margin-top: 2rem;
-      border: 2px dashed #d62828;
-      padding: 1.5rem;
-      text-align: center;
-    }
-    .download-btn {
-      margin-top: 20px;
-      background: var(--green);
-    }
   </style>
 </head>
 <body>
@@ -124,37 +98,10 @@
     <input type="password" id="passwordInput" placeholder="Enter Password" style="display:none;">
     <button id="submitBtn" style="display:none;">View Payslip</button>
     <div id="payslip" class="payslip"></div>
-    <div id="footerPayslip" class="footer-payslip" style="display:none;">
-      <p><strong>Company:</strong> <span id="company"></span></p>
-      <p><strong>Designation:</strong> <span id="designation"></span></p>
-      <p><strong>Month:</strong> July 2023 | <strong>Leave Taken:</strong> 1 day</p>
-      <p><strong>Days Worked:</strong> <span id="daysWorked"></span></p>
-      <div style="display:flex; justify-content:space-between; margin-top:1rem;">
-        <div style="text-align:left;">
-          <h4>Earned Salary</h4>
-          <p>Basic / DA: ₹<span id="basic"></span></p>
-          <p>HRA: ₹<span id="hra"></span></p>
-          <p>CCA: ₹<span id="cca"></span></p>
-          <p>Medical Allowance: ₹<span id="medical"></span></p>
-          <p>Special Allowance: ₹<span id="special"></span></p>
-          <p><strong>Total Earnings:</strong> ₹<span id="totalEarnings"></span></p>
-        </div>
-        <div style="text-align:left;">
-          <h4>Deductions</h4>
-          <p>PF: ₹<span id="pf"></span></p>
-          <p>ESI: ₹<span id="esi"></span></p>
-          <p>PT: ₹<span id="pt"></span></p>
-          <p><strong>Total Deductions:</strong> ₹<span id="totalDeductions"></span></p>
-        </div>
-      </div>
-      <p><strong>Leave Day Deduction:</strong> ₹<span id="leaveDeduction"></span></p>
-      <p><strong>Take Home Salary:</strong> ₹<span id="takeHome"></span></p>
-      <br>
-      <div style="display:flex; justify-content:space-between; margin-top:2rem;">
-        <span>_______________________<br>Authorized Signatory</span>
-        <span>_______________________<br>Signature of Employee</span>
-      </div>
-      <button class="download-btn" onclick="downloadPDF()">📄 Download as PDF</button>
+    <div id="changePasswordBox" style="display:none; margin-top: 2rem;">
+      <h4>🔑 Change Password</h4>
+      <input type="password" id="newPassword" placeholder="Enter New Password">
+      <button onclick="updatePassword()">Update Password</button>
     </div>
   </div>
   <script>
@@ -186,6 +133,8 @@
       document.getElementById("submitBtn").style.display = "block";
     });
 
+    let selectedEmployee;
+
     document.getElementById("submitBtn").addEventListener("click", () => {
       const selectedName = document.getElementById("employeeSelect").value;
       const enteredPassword = document.getElementById("passwordInput").value;
@@ -193,39 +142,52 @@
       const emp = employees.find(e => e["Employee Name"] === selectedName && e["Password"] === enteredPassword);
 
       if (emp) {
-        document.getElementById("payslip").style.display = "block";
-        document.getElementById("footerPayslip").style.display = "block";
+        selectedEmployee = emp;
+        const box = document.getElementById("payslip");
+        box.style.display = "block";
+        document.getElementById("changePasswordBox").style.display = "block";
 
-        document.getElementById("company").textContent = emp["Company"] || "-";
-        document.getElementById("designation").textContent = emp["Designation"] || "-";
-        document.getElementById("daysWorked").textContent = emp["No of Days Worked Employee"] || "-";
+        box.innerHTML = `
+          <h3>${emp["Employee Name"]}</h3>
+          <p><strong>Designation:</strong> ${emp["Designation"] || 'N/A'}</p>
+          <p><strong>Region:</strong> ${emp["Region"]} | <strong>State:</strong> ${emp["State"]}</p>
+          <p><strong>Project:</strong> ${emp["Project"]}</p>
+          <p><strong>Date of Joining:</strong> ${emp["Date of Joining"]} | <strong>Appraisal Due:</strong> ${emp["Apprisal Due"]}</p>
+          <p><strong>CTC:</strong> ₹${emp["CTC"]} | <strong>Take Home:</strong> ₹${emp["Takehome"]} | <strong>OH:</strong> ${emp["OH"]}</p>
+          <p><strong>Leaves Taken:</strong> ${emp["Leaves Taken"] || 'N/A'}</p>
 
-        document.getElementById("basic").textContent = emp["Basic"] || "0";
-        document.getElementById("hra").textContent = emp["HRA"] || "0";
-        document.getElementById("cca").textContent = emp["CCA"] || "0";
-        document.getElementById("medical").textContent = emp["Medical"] || "0";
-        document.getElementById("special").textContent = emp["Special"] || "0";
+          <h4>💰 Earnings</h4>
+          <p><strong>Basic:</strong> ₹${emp["Basic"]} | <strong>DA:</strong> ₹${emp["DA"]}</p>
+          <p><strong>Special Allowance:</strong> ₹${emp["Special Allow."]} | <strong>HRA:</strong> ₹${emp["HRA"]}</p>
+          <p><strong>Conveyance:</strong> ₹${emp["Conveyance"]} | <strong>Medical:</strong> ₹${emp["Medical"]}</p>
+          <p><strong>Special:</strong> ₹${emp["Special"]}</p>
+          <p><strong>Gross Salary:</strong> ₹${emp["Gross Salary"]} | <strong>Net Salary:</strong> ₹${emp["Net Salary"]}</p>
 
-        const totalEarn = parseFloat(emp["Basic"] || 0) + parseFloat(emp["HRA"] || 0) + parseFloat(emp["CCA"] || 0) + parseFloat(emp["Medical"] || 0) + parseFloat(emp["Special"] || 0);
-        document.getElementById("totalEarnings").textContent = totalEarn.toFixed(2);
+          <h4>📉 Deductions</h4>
+          <p><strong>PF:</strong> ₹${emp["PF"]} | <strong>ESI:</strong> ₹${emp["ESI"]} | <strong>PT:</strong> ₹${emp["PT"]} | <strong>IT/INS:</strong> ₹${emp["IT/INS"]}</p>
+          <p><strong>Advance / VF:</strong> ₹${emp["Adv / vf"]}</p>
+          <p><strong>Total Deductions:</strong> ₹${emp["Total"]}</p>
 
-        document.getElementById("pf").textContent = emp["PF"] || "0";
-        document.getElementById("esi").textContent = emp["ESI"] || "0";
-        document.getElementById("pt").textContent = emp["PT"] || "0";
-
-        const totalDeduct = parseFloat(emp["PF"] || 0) + parseFloat(emp["ESI"] || 0) + parseFloat(emp["PT"] || 0);
-        document.getElementById("totalDeductions").textContent = totalDeduct.toFixed(2);
-
-        document.getElementById("leaveDeduction").textContent = emp["Total"] || "0";
-        document.getElementById("takeHome").textContent = emp["Take Home Salary"] || "0";
-
+          <h4>🟢 Final</h4>
+          <p><strong>Take Home Salary:</strong> ₹${emp["Take Home Salary"]}</p>
+          <p><strong>Medical Insurance:</strong> ₹${emp["M Insurance"]} | <strong>PA Insurance:</strong> ₹${emp["PA Insurance"]}</p>
+          <p><strong>Bonus / Leave Salary / Training:</strong> ₹${emp["Bonus / Leave Salary / Training"]}</p>
+        `;
       } else {
         alert("Invalid password. Please try again.");
       }
     });
 
-    function downloadPDF() {
-      html2pdf(document.querySelector('.card'));
+    function updatePassword() {
+      const newPass = document.getElementById("newPassword").value.trim();
+      if (!newPass || !selectedEmployee) return alert("Please enter a new password.");
+
+      const updateURL = `https://script.google.com/macros/s/AKfycbzfMKBGSuag1HCZXXoY-YOju-RN3NlbduMbxAWkm8GhxtYK4orgu7Lgflagq_RUISVcgQ/exec?name=${encodeURIComponent(selectedEmployee["Employee Name"])}&newPassword=${encodeURIComponent(newPass)}`;
+
+      fetch(updateURL)
+        .then(res => res.text())
+        .then(msg => alert("Password updated successfully."))
+        .catch(err => alert("Failed to update password."));
     }
   </script>
 </body>
