@@ -3,12 +3,13 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Employee Payslip Viewer</title>
+  <title>Vijaya Pay | Employee Payslip Viewer</title>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
   <style>
     :root {
-      --primary: #4f46e5;
-      --background: #f9fafb;
+      --primary: #e63946;
+      --background: #fdf0f0;
       --white: #ffffff;
       --gray: #6b7280;
       --light-gray: #e5e7eb;
@@ -23,11 +24,24 @@
     }
     .card {
       background: var(--white);
-      max-width: 700px;
+      max-width: 750px;
       margin: 0 auto;
       padding: 2rem;
       border-radius: 1rem;
-      box-shadow: 0 10px 25px rgba(0,0,0,0.05);
+      box-shadow: 0 10px 25px rgba(0,0,0,0.07);
+    }
+    .brand {
+      text-align: center;
+      margin-bottom: 2rem;
+    }
+    .brand h1 {
+      color: var(--primary);
+      margin: 0;
+    }
+    .brand p {
+      color: var(--gray);
+      margin: 0;
+      font-size: 0.95rem;
     }
     h2 {
       margin-bottom: 1rem;
@@ -50,20 +64,20 @@
       transition: background 0.3s;
     }
     button:hover {
-      background: #4338ca;
+      background: #d62828;
     }
     .payslip {
       display: none;
-      background: #ecfdf5;
+      background: #fff8f8;
       padding: 1.5rem;
-      border: 1px solid var(--green);
+      border: 1px solid var(--primary);
       border-radius: 0.75rem;
       margin-top: 1.5rem;
       text-align: left;
     }
     .payslip h3 {
       margin-top: 0;
-      color: var(--green);
+      color: var(--primary);
     }
     .section {
       margin-top: 1.5rem;
@@ -80,10 +94,25 @@
     .label {
       font-weight: 600;
     }
+    .footer-payslip {
+      background: #ffffff;
+      margin-top: 2rem;
+      border: 2px dashed #d62828;
+      padding: 1.5rem;
+      text-align: center;
+    }
+    .download-btn {
+      margin-top: 20px;
+      background: var(--green);
+    }
   </style>
 </head>
 <body>
   <div class="card">
+    <div class="brand">
+      <h1>Vijaya Pay</h1>
+      <p>Powered by Vijaya Kitchen Group</p>
+    </div>
     <h2>🔐 Employee Payslip Viewer</h2>
     <select id="employeeSelect">
       <option value="">-- Select Employee --</option>
@@ -91,29 +120,58 @@
     <input type="password" id="passwordInput" placeholder="Enter Password" style="display:none;">
     <button id="submitBtn" style="display:none;">View Payslip</button>
     <div id="payslip" class="payslip"></div>
+    <div id="footerPayslip" class="footer-payslip" style="display:none;">
+      <p><strong>Company:</strong> Vijaya Kitchen Pvt Ltd</p>
+      <p><strong>Designation:</strong> Help Desk Engineer</p>
+      <p><strong>Month:</strong> July 2023 | <strong>Leave Taken:</strong> 1 day</p>
+      <p><strong>Days Worked:</strong> 25</p>
+      <div style="display:flex; justify-content:space-between; margin-top:1rem;">
+        <div style="text-align:left;">
+          <h4>Earned Salary</h4>
+          <p>Basic / DA: ₹5000.00</p>
+          <p>HRA: ₹1500.00</p>
+          <p>CCA: ₹900.00</p>
+          <p>Medical Allowance: ₹1250.00</p>
+          <p>Special Allowance: ₹1360.00</p>
+          <p><strong>Total Earnings:</strong> ₹10010.00</p>
+        </div>
+        <div style="text-align:left;">
+          <h4>Deductions</h4>
+          <p>PF: ₹577.00</p>
+          <p>ESI: ₹72.00</p>
+          <p>PT: ₹100.00</p>
+          <p><strong>Total Deductions:</strong> ₹749.00</p>
+        </div>
+      </div>
+      <p><strong>Leave Day Deduction:</strong> ₹385.00</p>
+      <p><strong>Take Home Salary:</strong> ₹8876.00</p>
+      <br>
+      <div style="display:flex; justify-content:space-between; margin-top:2rem;">
+        <span>_______________________<br>Authorized Signatory</span>
+        <span>_______________________<br>Signature of Employee</span>
+      </div>
+      <button class="download-btn" onclick="downloadPDF()">📄 Download as PDF</button>
+    </div>
   </div>
-
   <script>
-    const sheetURL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vQrLihmERkwNQcGyoYcEnpWBu732YOewgCZgjt6ylykJd0Mc68tETA3gh_MsmylaYfyHl6EvP7Taeee/pub?gid=0&single=true&output=csv';
-
+    const sheetUrl = "https://docs.google.com/spreadsheets/d/e/2PACX-1vQrLihmERkwNQcGyoYcEnpWBu732YOewgCZgjt6ylykJd0Mc68tETA3gh_MsmylaYfyHl6EvP7Taeee/pub?gid=0&single=true&output=csv";
     let employees = [];
 
-    fetch(sheetURL)
+    fetch(sheetUrl)
       .then(res => res.text())
-      .then(csv => {
-        const lines = csv.trim().split('\n');
-        const headers = lines[0].split(',').map(h => h.trim());
-        employees = lines.slice(1).map(row => {
-          const values = row.split(',');
-          let emp = {};
-          headers.forEach((key, i) => emp[key] = values[i]?.trim());
-          return emp;
+      .then(data => {
+        const rows = data.trim().split('\n').map(row => row.split(','));
+        const headers = rows[0];
+        employees = rows.slice(1).map(row => {
+          let obj = {};
+          headers.forEach((h, i) => obj[h.trim()] = row[i]?.trim());
+          return obj;
         });
 
         const select = document.getElementById("employeeSelect");
-        employees.forEach((emp, i) => {
+        employees.forEach(emp => {
           const opt = document.createElement("option");
-          opt.value = i;
+          opt.value = emp["Employee Name"];
           opt.textContent = emp["Employee Name"];
           select.appendChild(opt);
         });
@@ -125,63 +183,23 @@
     });
 
     document.getElementById("submitBtn").addEventListener("click", () => {
-      const index = document.getElementById("employeeSelect").value;
-      const password = document.getElementById("passwordInput").value;
-      const emp = employees[index];
+      const selectedName = document.getElementById("employeeSelect").value;
+      const enteredPassword = document.getElementById("passwordInput").value;
 
-      if (emp["Password"] === password) {
-        const container = document.getElementById("payslip");
-        container.style.display = "block";
-        container.innerHTML = `
-          <h3>👤 ${emp["Employee Name"]}</h3>
-          <div class="section">
-            <h4>📍 General Info</h4>
-            <div class="row"><span class="label">Region:</span><span>${emp["Region"]}</span></div>
-            <div class="row"><span class="label">State:</span><span>${emp["State"]}</span></div>
-            <div class="row"><span class="label">Project:</span><span>${emp["Project"]}</span></div>
-            <div class="row"><span class="label">Date of Joining:</span><span>${emp["Date of Joining"]}</span></div>
-            <div class="row"><span class="label">Appraisal Due:</span><span>${emp["Apprisal Due"]}</span></div>
-          </div>
+      const matchedEmp = employees.find(emp => emp["Employee Name"] === selectedName && emp["Password"] === enteredPassword);
 
-          <div class="section">
-            <h4>💼 Salary Overview</h4>
-            <div class="row"><span class="label">CTC:</span><span>₹${emp["CTC"]}</span></div>
-            <div class="row"><span class="label">Gross Salary:</span><span>₹${emp["Gross Salary"]}</span></div>
-            <div class="row"><span class="label">Net Salary:</span><span>₹${emp["Net Salary"]}</span></div>
-            <div class="row"><span class="label">Final Take Home:</span><span>₹${emp["Take Home Salary"]}</span></div>
-          </div>
-
-          <div class="section">
-            <h4>📈 Earnings</h4>
-            <div class="row"><span class="label">Basic:</span><span>₹${emp["Basic"]}</span></div>
-            <div class="row"><span class="label">DA:</span><span>₹${emp["DA"]}</span></div>
-            <div class="row"><span class="label">Special Allowance:</span><span>₹${emp["Special Allow."]}</span></div>
-            <div class="row"><span class="label">HRA:</span><span>₹${emp["HRA"]}</span></div>
-            <div class="row"><span class="label">Conveyance:</span><span>₹${emp["Conveyance"]}</span></div>
-            <div class="row"><span class="label">Medical:</span><span>₹${emp["Medical"]}</span></div>
-            <div class="row"><span class="label">Special:</span><span>₹${emp["Special"]}</span></div>
-          </div>
-
-          <div class="section">
-            <h4>📉 Deductions</h4>
-            <div class="row"><span class="label">PF:</span><span>₹${emp["PF"]}</span></div>
-            <div class="row"><span class="label">ESI:</span><span>₹${emp["ESI"]}</span></div>
-            <div class="row"><span class="label">PT:</span><span>₹${emp["PT"]}</span></div>
-            <div class="row"><span class="label">IT/INS:</span><span>₹${emp["IT/INS"]}</span></div>
-            <div class="row"><span class="label">Total:</span><span>₹${emp["Total"]}</span></div>
-          </div>
-
-          <div class="section">
-            <h4>🛡️ Insurance & Bonuses</h4>
-            <div class="row"><span class="label">Medical Insurance:</span><span>₹${emp["M Insurance"]}</span></div>
-            <div class="row"><span class="label">PA Insurance:</span><span>₹${emp["PA Insurance"]}</span></div>
-            <div class="row"><span class="label">Bonus / Leave:</span><span>₹${emp["Bonus / Leave Salary / Training"]}</span></div>
-          </div>
-        `;
+      if (matchedEmp) {
+        document.getElementById("payslip").style.display = "block";
+        document.getElementById("footerPayslip").style.display = "block";
+        // You can update this section to fill in dynamic fields from matchedEmp
       } else {
-        alert("❌ Incorrect password. Please try again.");
+        alert("Invalid password. Please try again.");
       }
     });
+
+    function downloadPDF() {
+      html2pdf(document.querySelector('.card'));
+    }
   </script>
 </body>
 </html>
