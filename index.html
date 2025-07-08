@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Vijaya Pay | Employee Payslip Viewer</title>
+  <title>MCC | Employee Payslip</title>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
   <style>
@@ -48,18 +48,31 @@
       font-size: 1.5rem;
       color: var(--primary);
     }
-    select, input[type="password"], button {
+    select, input[type="password"], button, .password-wrapper {
       width: 100%;
       padding: 0.75rem;
       font-size: 1rem;
       margin-bottom: 1rem;
       border: 1px solid var(--light-gray);
       border-radius: 0.5rem;
-    }
-    input[type="password"] {
       box-sizing: border-box;
-      height: 3rem;
-      padding: 0.6rem 0.75rem;
+    }
+    .password-wrapper {
+      display: flex;
+      align-items: center;
+      position: relative;
+      padding: 0;
+    }
+    .password-wrapper input {
+      width: 100%;
+      padding-right: 40px;
+    }
+    .toggle-password {
+      position: absolute;
+      right: 10px;
+      cursor: pointer;
+      color: var(--gray);
+      font-size: 1rem;
     }
     button {
       background: var(--primary);
@@ -86,9 +99,14 @@
     }
     .message {
       font-size: 0.95rem;
-      color: var(--red);
       font-weight: 500;
       margin-bottom: 1rem;
+    }
+    .message.error {
+      color: var(--red);
+    }
+    .message.success {
+      color: var(--green);
     }
   </style>
 </head>
@@ -101,15 +119,25 @@
     <select id="employeeSelect">
       <option value="">-- Select Employee --</option>
     </select>
-    <div id="noPasswordMessage" class="message" style="display:none;">No password set. Please create one below 👇</div>
-    <input type="password" id="passwordInput" placeholder="Enter Password" style="display:none;">
+    <div id="noPasswordMessage" class="message error" style="display:none;">No password set. Please create one below 👇</div>
+    <div class="password-wrapper" style="display:none;" id="passwordWrapper">
+      <input type="password" id="passwordInput" placeholder="Enter Password">
+      <span class="toggle-password" onclick="toggleVisibility('passwordInput', this)">👁️</span>
+    </div>
     <button id="submitBtn" style="display:none;">View Payslip</button>
     <div id="payslip" class="payslip"></div>
     <div id="changePasswordBox" style="display:none; margin-top: 2rem;">
       <h4>🔑 Change / Create Password</h4>
-      <input type="password" id="newPassword" placeholder="Enter New Password">
-      <input type="password" id="confirmPassword" placeholder="Confirm New Password">
+      <div class="password-wrapper">
+        <input type="password" id="newPassword" placeholder="Enter New Password">
+        <span class="toggle-password" onclick="toggleVisibility('newPassword', this)">👁️</span>
+      </div>
+      <div class="password-wrapper">
+        <input type="password" id="confirmPassword" placeholder="Confirm New Password">
+        <span class="toggle-password" onclick="toggleVisibility('confirmPassword', this)">👁️</span>
+      </div>
       <button onclick="updatePassword()">Update Password</button>
+      <div id="passwordSuccess" class="message success" style="display:none;">✅ Password updated successfully!</div>
     </div>
   </div>
   <script>
@@ -137,7 +165,7 @@
       });
 
     document.getElementById("employeeSelect").addEventListener("change", () => {
-      document.getElementById("passwordInput").style.display = "block";
+      document.getElementById("passwordWrapper").style.display = "flex";
       document.getElementById("submitBtn").style.display = "block";
     });
 
@@ -146,7 +174,6 @@
     document.getElementById("submitBtn").addEventListener("click", () => {
       const selectedName = document.getElementById("employeeSelect").value;
       const enteredPassword = document.getElementById("passwordInput").value;
-
       const emp = employees.find(e => e["Employee Name"] === selectedName);
 
       if (emp) {
@@ -170,19 +197,16 @@
             <p><strong>Date of Joining:</strong> ${emp["Date of Joining"]} | <strong>Appraisal Due:</strong> ${emp["Apprisal Due"]}</p>
             <p><strong>CTC:</strong> ₹${emp["CTC"]} | <strong>Take Home:</strong> ₹${emp["Takehome"]} | <strong>OH:</strong> ${emp["OH"]}</p>
             <p><strong>Leaves Taken:</strong> ${emp["Leaves Taken"] || 'N/A'}</p>
-
             <h4>💰 Earnings</h4>
             <p><strong>Basic:</strong> ₹${emp["Basic"]} | <strong>DA:</strong> ₹${emp["DA"]}</p>
             <p><strong>Special Allowance:</strong> ₹${emp["Special Allow."]} | <strong>HRA:</strong> ₹${emp["HRA"]}</p>
             <p><strong>Conveyance:</strong> ₹${emp["Conveyance"]} | <strong>Medical:</strong> ₹${emp["Medical"]}</p>
             <p><strong>Special:</strong> ₹${emp["Special"]}</p>
             <p><strong>Gross Salary:</strong> ₹${emp["Gross Salary"]} | <strong>Net Salary:</strong> ₹${emp["Net Salary"]}</p>
-
             <h4>📉 Deductions</h4>
             <p><strong>PF:</strong> ₹${emp["PF"]} | <strong>ESI:</strong> ₹${emp["ESI"]} | <strong>PT:</strong> ₹${emp["PT"]} | <strong>IT/INS:</strong> ₹${emp["IT/INS"]}</p>
             <p><strong>Advance / VF:</strong> ₹${emp["Adv / vf"]}</p>
             <p><strong>Total Deductions:</strong> ₹${emp["Total"]}</p>
-
             <h4>🟢 Final</h4>
             <p><strong>Take Home Salary:</strong> ₹${emp["Take Home Salary"]}</p>
             <p><strong>Medical Insurance:</strong> ₹${emp["M Insurance"]} | <strong>PA Insurance:</strong> ₹${emp["PA Insurance"]}</p>
@@ -199,6 +223,8 @@
     function updatePassword() {
       const newPass = document.getElementById("newPassword").value.trim();
       const confirmPass = document.getElementById("confirmPassword").value.trim();
+      const msgBox = document.getElementById("passwordSuccess");
+      msgBox.style.display = "none";
 
       if (!newPass || !confirmPass) return alert("Please enter both password fields.");
       if (newPass !== confirmPass) return alert("Passwords do not match.");
@@ -209,10 +235,20 @@
       fetch(updateURL)
         .then(res => res.text())
         .then(msg => {
-          alert("Password updated successfully. Please reload and log in.");
-          location.reload();
+          msgBox.style.display = "block";
         })
         .catch(err => alert("Failed to update password."));
+    }
+
+    function toggleVisibility(id, el) {
+      const input = document.getElementById(id);
+      if (input.type === "password") {
+        input.type = "text";
+        el.textContent = "🙈";
+      } else {
+        input.type = "password";
+        el.textContent = "👁️";
+      }
     }
   </script>
 </body>
