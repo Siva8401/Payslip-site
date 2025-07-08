@@ -2,42 +2,67 @@
 <html>
 <head>
   <meta charset="UTF-8">
-  <title>Employee Payslip</title>
-  <link rel="stylesheet" href="style.css">
+  <title>Payslip Portal</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      padding: 40px;
+      background: #f0f2f5;
+    }
+    .container {
+      max-width: 500px;
+      background: #fff;
+      margin: auto;
+      padding: 20px;
+      border-radius: 8px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    }
+    input, select, button {
+      width: 100%;
+      padding: 10px;
+      margin: 10px 0;
+      font-size: 15px;
+    }
+    .payslip-box {
+      background: #e6fff0;
+      padding: 15px;
+      border-radius: 6px;
+      margin-top: 20px;
+      text-align: left;
+    }
+  </style>
 </head>
 <body>
   <div class="container">
-    <h2>Payslip Viewer</h2>
-    <select id="employeeSelect">
-      <option value="">-- Select Employee --</option>
-    </select>
+    <h2>Employee Payslip</h2>
+    <select id="employeeSelect"><option value="">-- Select Employee --</option></select>
     <input type="password" id="passwordInput" placeholder="Enter Password" style="display:none;">
     <button id="submitBtn" style="display:none;">View Payslip</button>
     <div id="payslip" class="payslip-box" style="display:none;"></div>
   </div>
 
   <script>
-    const sheetURL = 'https://docs.google.com/spreadsheets/d/e/PASTE_YOUR_LINK_HERE/pub?output=csv';
-
+    const sheetURL = 'PASTE_YOUR_CSV_URL_HERE';
     let employees = [];
 
     fetch(sheetURL)
-      .then(response => response.text())
-      .then(csvText => {
-        const rows = csvText.split("\n").map(row => row.split(","));
-        const headers = rows[0];
-        employees = rows.slice(1).map(row => {
-          let emp = {};
-          headers.forEach((key, i) => emp[key.trim()] = row[i]?.trim());
-          return emp;
+      .then(res => res.text())
+      .then(csv => {
+        const lines = csv.trim().split('\n');
+        const headers = lines[0].split(',');
+        employees = lines.slice(1).map(row => {
+          const values = row.split(',');
+          let obj = {};
+          headers.forEach((h, i) => obj[h.trim()] = values[i]?.trim());
+          return obj;
         });
 
         const select = document.getElementById("employeeSelect");
-        employees.forEach((emp, index) => {
-          const option = document.createElement("option");
-          option.value = index;
-          option.textContent = emp["Name"];
-          select.appendChild(option);
+        employees.forEach((emp, i) => {
+          const opt = document.createElement("option");
+          opt.value = i;
+          opt.textContent = emp["Employee Name"];
+          select.appendChild(opt);
         });
       });
 
@@ -47,29 +72,27 @@
     });
 
     document.getElementById("submitBtn").addEventListener("click", () => {
-      const index = document.getElementById("employeeSelect").value;
-      const enteredPassword = document.getElementById("passwordInput").value;
+      const idx = document.getElementById("employeeSelect").value;
+      const pwd = document.getElementById("passwordInput").value;
+      const emp = employees[idx];
 
-      if (!employees[index]) return;
-
-      if (employees[index]["Password"] === enteredPassword) {
-        const emp = employees[index];
-        const div = document.getElementById("payslip");
-        div.style.display = "block";
-        div.innerHTML = `
-          <h3>Payslip for ${emp["Name"]}</h3>
-          <p><strong>Region:</strong> ${emp["Region"]}</p>
-          <p><strong>State:</strong> ${emp["State"]}</p>
-          <p><strong>Date of Joining:</strong> ${emp["DOJ"]}</p>
-          <p><strong>Project:</strong> ${emp["Project"]}</p>
-          <p><strong>CTC:</strong> ₹${emp["CTC"]}</p>
-          <p><strong>Gross:</strong> ₹${emp["Gross"]}</p>
-          <p><strong>Net:</strong> ₹${emp["Net"]}</p>
-          <p><strong>Deductions:</strong> PT: ₹${emp["PT"]}, ESI: ₹${emp["ESI"]}, IT: ₹${emp["IT"]}</p>
-          <p><strong>Final Takehome:</strong> ₹${emp["Final Takehome"]}</p>
+      if (emp["Password"] === pwd) {
+        document.getElementById("payslip").style.display = "block";
+        document.getElementById("payslip").innerHTML = `
+          <h3>${emp["Employee Name"]}</h3>
+          <p><b>Region:</b> ${emp["Region"]} | <b>State:</b> ${emp["State"]}</p>
+          <p><b>Project:</b> ${emp["Project"]}</p>
+          <p><b>Date of Joining:</b> ${emp["Date of Joining"]}</p>
+          <p><b>Appraisal Due:</b> ${emp["Apprisal Due"]}</p>
+          <p><b>CTC:</b> ₹${emp["CTC"]} | <b>Take Home:</b> ₹${emp["Takehome"]}</p>
+          <p><b>Gross Salary:</b> ₹${emp["Gross Salary"]} | <b>Net Salary:</b> ₹${emp["Net Salary"]}</p>
+          <p><b>Deductions:</b> PF ₹${emp["PF"]}, ESI ₹${emp["ESI"]}, PT ₹${emp["PT"]}, IT ₹${emp["IT/INS"]}</p>
+          <p><b>Final Take Home:</b> ₹${emp["Take Home Salary"]}</p>
+          <p><b>Insurance:</b> Medical ₹${emp["M Insurance"]}, PA ₹${emp["PA Insurance"]}</p>
+          <p><b>Bonus / Leave Salary:</b> ₹${emp["Bonus / Leave Salary / Training"]}</p>
         `;
       } else {
-        alert("Incorrect password!");
+        alert("Incorrect password. Please try again.");
       }
     });
   </script>
