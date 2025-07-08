@@ -14,7 +14,7 @@
       background: white;
       padding: 20px;
       border-radius: 10px;
-      max-width: 600px;
+      max-width: 800px;
       margin: auto;
       box-shadow: 0 0 10px rgba(0,0,0,0.1);
     }
@@ -25,11 +25,17 @@
       font-size: 16px;
     }
     .payslip-box {
-      background: #e3ffe3;
-      padding: 15px;
+      background: #f9fff3;
+      padding: 20px;
       border-radius: 8px;
       margin-top: 20px;
       text-align: left;
+    }
+    .section-title {
+      font-weight: bold;
+      margin-top: 15px;
+      border-bottom: 1px solid #ccc;
+      padding-bottom: 5px;
     }
   </style>
 </head>
@@ -88,14 +94,25 @@
           <h3>${emp["Employee Name"]}</h3>
           <p><strong>Region:</strong> ${emp["Region"]} | <strong>State:</strong> ${emp["State"]}</p>
           <p><strong>Project:</strong> ${emp["Project"]}</p>
-          <p><strong>Date of Joining:</strong> ${emp["Date of Joining"]}</p>
-          <p><strong>CTC:</strong> ₹${emp["CTC"]}</p>
+          <p><strong>Date of Joining:</strong> ${emp["Date of Joining"]} | <strong>Appraisal Due:</strong> ${emp["Apprisal Due"]}</p>
+          <p><strong>CTC:</strong> ₹${emp["CTC"]} | <strong>Take Home:</strong> ₹${emp["Takehome"]} | <strong>OH:</strong> ${emp["OH"]}</p>
+
+          <div class="section-title">💰 Earning Breakdown</div>
+          <p><strong>Basic:</strong> ₹${emp["Basic"]}, <strong>DA:</strong> ₹${emp["DA"]}</p>
+          <p><strong>Special Allow.:</strong> ₹${emp["Special Allow."]}, <strong>HRA:</strong> ₹${emp["HRA"]}</p>
+          <p><strong>Conveyance:</strong> ₹${emp["Conveyance"]}, <strong>Medical:</strong> ₹${emp["Medical"]}</p>
+          <p><strong>Special:</strong> ₹${emp["Special"]}</p>
           <p><strong>Gross Salary:</strong> ₹${emp["Gross Salary"]}</p>
           <p><strong>Net Salary:</strong> ₹${emp["Net Salary"]}</p>
-          <p><strong>Deductions:</strong> PF: ₹${emp["PF"]}, ESI: ₹${emp["ESI"]}, PT: ₹${emp["PT"]}, IT: ₹${emp["IT/INS"]}</p>
-          <p><strong>Take Home Salary:</strong> ₹${emp["Take Home Salary"]}</p>
-          <p><strong>Insurance:</strong> Medical ₹${emp["M Insurance"]}, PA ₹${emp["PA Insurance"]}</p>
-          <p><strong>Bonus / Leave Salary:</strong> ₹${emp["Bonus / Leave Salary / Training"]}</p>
+
+          <div class="section-title">📉 Deduction Breakdown</div>
+          <p><strong>PF:</strong> ₹${emp["PF"]}, <strong>ESI:</strong> ₹${emp["ESI"]}, <strong>PT:</strong> ₹${emp["PT"]}, <strong>IT/INS:</strong> ₹${emp["IT/INS"]}</p>
+          <p><strong>Total Deductions:</strong> ₹${emp["Total"]}</p>
+
+          <div class="section-title">🟢 Final</div>
+          <p><strong>Final Take Home:</strong> ₹${emp["Take Home Salary"]}</p>
+          <p><strong>Medical Insurance:</strong> ₹${emp["M Insurance"]}, <strong>PA Insurance:</strong> ₹${emp["PA Insurance"]}</p>
+          <p><strong>Bonus / Leave Salary / Training:</strong> ₹${emp["Bonus / Leave Salary / Training"]}</p>
         `;
       } else {
         alert("❌ Incorrect password. Please try again.");
