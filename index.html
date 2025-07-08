@@ -1,51 +1,96 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
   <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Employee Payslip Viewer</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
   <style>
+    :root {
+      --primary: #4f46e5;
+      --background: #f9fafb;
+      --white: #ffffff;
+      --gray: #6b7280;
+      --light-gray: #e5e7eb;
+      --green: #10b981;
+      --red: #ef4444;
+    }
     body {
-      font-family: Arial, sans-serif;
-      background-color: #f4f6f8;
-      padding: 30px;
-      text-align: center;
+      font-family: 'Inter', sans-serif;
+      background: var(--background);
+      margin: 0;
+      padding: 2rem;
     }
-    .container {
-      background: white;
-      padding: 20px;
-      border-radius: 10px;
-      max-width: 800px;
-      margin: auto;
-      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+    .card {
+      background: var(--white);
+      max-width: 700px;
+      margin: 0 auto;
+      padding: 2rem;
+      border-radius: 1rem;
+      box-shadow: 0 10px 25px rgba(0,0,0,0.05);
     }
-    select, input, button {
-      padding: 10px;
-      margin: 10px 0;
+    h2 {
+      margin-bottom: 1rem;
+      font-size: 1.5rem;
+      color: var(--primary);
+    }
+    select, input[type="password"], button {
       width: 100%;
-      font-size: 16px;
+      padding: 0.75rem;
+      font-size: 1rem;
+      margin-bottom: 1rem;
+      border: 1px solid var(--light-gray);
+      border-radius: 0.5rem;
     }
-    .payslip-box {
-      background: #f9fff3;
-      padding: 20px;
-      border-radius: 8px;
-      margin-top: 20px;
+    button {
+      background: var(--primary);
+      color: var(--white);
+      font-weight: 600;
+      cursor: pointer;
+      transition: background 0.3s;
+    }
+    button:hover {
+      background: #4338ca;
+    }
+    .payslip {
+      display: none;
+      background: #ecfdf5;
+      padding: 1.5rem;
+      border: 1px solid var(--green);
+      border-radius: 0.75rem;
+      margin-top: 1.5rem;
       text-align: left;
     }
-    .section-title {
-      font-weight: bold;
-      margin-top: 15px;
-      border-bottom: 1px solid #ccc;
-      padding-bottom: 5px;
+    .payslip h3 {
+      margin-top: 0;
+      color: var(--green);
+    }
+    .section {
+      margin-top: 1.5rem;
+    }
+    .section h4 {
+      color: var(--gray);
+      margin-bottom: 0.5rem;
+    }
+    .row {
+      display: flex;
+      justify-content: space-between;
+      padding: 0.25rem 0;
+    }
+    .label {
+      font-weight: 600;
     }
   </style>
 </head>
 <body>
-  <div class="container">
-    <h2>Employee Payslip Portal</h2>
-    <select id="employeeSelect"><option value="">-- Select Employee --</option></select>
+  <div class="card">
+    <h2>🔐 Employee Payslip Viewer</h2>
+    <select id="employeeSelect">
+      <option value="">-- Select Employee --</option>
+    </select>
     <input type="password" id="passwordInput" placeholder="Enter Password" style="display:none;">
     <button id="submitBtn" style="display:none;">View Payslip</button>
-    <div id="payslip" class="payslip-box" style="display:none;"></div>
+    <div id="payslip" class="payslip"></div>
   </div>
 
   <script>
@@ -61,16 +106,14 @@
         employees = lines.slice(1).map(row => {
           const values = row.split(',');
           let emp = {};
-          headers.forEach((key, i) => {
-            emp[key] = values[i]?.trim();
-          });
+          headers.forEach((key, i) => emp[key] = values[i]?.trim());
           return emp;
         });
 
         const select = document.getElementById("employeeSelect");
-        employees.forEach((emp, index) => {
+        employees.forEach((emp, i) => {
           const opt = document.createElement("option");
-          opt.value = index;
+          opt.value = i;
           opt.textContent = emp["Employee Name"];
           select.appendChild(opt);
         });
@@ -87,32 +130,53 @@
       const emp = employees[index];
 
       if (emp["Password"] === password) {
-        const box = document.getElementById("payslip");
-        box.style.display = "block";
+        const container = document.getElementById("payslip");
+        container.style.display = "block";
+        container.innerHTML = `
+          <h3>👤 ${emp["Employee Name"]}</h3>
+          <div class="section">
+            <h4>📍 General Info</h4>
+            <div class="row"><span class="label">Region:</span><span>${emp["Region"]}</span></div>
+            <div class="row"><span class="label">State:</span><span>${emp["State"]}</span></div>
+            <div class="row"><span class="label">Project:</span><span>${emp["Project"]}</span></div>
+            <div class="row"><span class="label">Date of Joining:</span><span>${emp["Date of Joining"]}</span></div>
+            <div class="row"><span class="label">Appraisal Due:</span><span>${emp["Apprisal Due"]}</span></div>
+          </div>
 
-        box.innerHTML = `
-          <h3>${emp["Employee Name"]}</h3>
-          <p><strong>Region:</strong> ${emp["Region"]} | <strong>State:</strong> ${emp["State"]}</p>
-          <p><strong>Project:</strong> ${emp["Project"]}</p>
-          <p><strong>Date of Joining:</strong> ${emp["Date of Joining"]} | <strong>Appraisal Due:</strong> ${emp["Apprisal Due"]}</p>
-          <p><strong>CTC:</strong> ₹${emp["CTC"]} | <strong>Take Home:</strong> ₹${emp["Takehome"]} | <strong>OH:</strong> ${emp["OH"]}</p>
+          <div class="section">
+            <h4>💼 Salary Overview</h4>
+            <div class="row"><span class="label">CTC:</span><span>₹${emp["CTC"]}</span></div>
+            <div class="row"><span class="label">Gross Salary:</span><span>₹${emp["Gross Salary"]}</span></div>
+            <div class="row"><span class="label">Net Salary:</span><span>₹${emp["Net Salary"]}</span></div>
+            <div class="row"><span class="label">Final Take Home:</span><span>₹${emp["Take Home Salary"]}</span></div>
+          </div>
 
-          <div class="section-title">💰 Earning Breakdown</div>
-          <p><strong>Basic:</strong> ₹${emp["Basic"]}, <strong>DA:</strong> ₹${emp["DA"]}</p>
-          <p><strong>Special Allow.:</strong> ₹${emp["Special Allow."]}, <strong>HRA:</strong> ₹${emp["HRA"]}</p>
-          <p><strong>Conveyance:</strong> ₹${emp["Conveyance"]}, <strong>Medical:</strong> ₹${emp["Medical"]}</p>
-          <p><strong>Special:</strong> ₹${emp["Special"]}</p>
-          <p><strong>Gross Salary:</strong> ₹${emp["Gross Salary"]}</p>
-          <p><strong>Net Salary:</strong> ₹${emp["Net Salary"]}</p>
+          <div class="section">
+            <h4>📈 Earnings</h4>
+            <div class="row"><span class="label">Basic:</span><span>₹${emp["Basic"]}</span></div>
+            <div class="row"><span class="label">DA:</span><span>₹${emp["DA"]}</span></div>
+            <div class="row"><span class="label">Special Allowance:</span><span>₹${emp["Special Allow."]}</span></div>
+            <div class="row"><span class="label">HRA:</span><span>₹${emp["HRA"]}</span></div>
+            <div class="row"><span class="label">Conveyance:</span><span>₹${emp["Conveyance"]}</span></div>
+            <div class="row"><span class="label">Medical:</span><span>₹${emp["Medical"]}</span></div>
+            <div class="row"><span class="label">Special:</span><span>₹${emp["Special"]}</span></div>
+          </div>
 
-          <div class="section-title">📉 Deduction Breakdown</div>
-          <p><strong>PF:</strong> ₹${emp["PF"]}, <strong>ESI:</strong> ₹${emp["ESI"]}, <strong>PT:</strong> ₹${emp["PT"]}, <strong>IT/INS:</strong> ₹${emp["IT/INS"]}</p>
-          <p><strong>Total Deductions:</strong> ₹${emp["Total"]}</p>
+          <div class="section">
+            <h4>📉 Deductions</h4>
+            <div class="row"><span class="label">PF:</span><span>₹${emp["PF"]}</span></div>
+            <div class="row"><span class="label">ESI:</span><span>₹${emp["ESI"]}</span></div>
+            <div class="row"><span class="label">PT:</span><span>₹${emp["PT"]}</span></div>
+            <div class="row"><span class="label">IT/INS:</span><span>₹${emp["IT/INS"]}</span></div>
+            <div class="row"><span class="label">Total:</span><span>₹${emp["Total"]}</span></div>
+          </div>
 
-          <div class="section-title">🟢 Final</div>
-          <p><strong>Final Take Home:</strong> ₹${emp["Take Home Salary"]}</p>
-          <p><strong>Medical Insurance:</strong> ₹${emp["M Insurance"]}, <strong>PA Insurance:</strong> ₹${emp["PA Insurance"]}</p>
-          <p><strong>Bonus / Leave Salary / Training:</strong> ₹${emp["Bonus / Leave Salary / Training"]}</p>
+          <div class="section">
+            <h4>🛡️ Insurance & Bonuses</h4>
+            <div class="row"><span class="label">Medical Insurance:</span><span>₹${emp["M Insurance"]}</span></div>
+            <div class="row"><span class="label">PA Insurance:</span><span>₹${emp["PA Insurance"]}</span></div>
+            <div class="row"><span class="label">Bonus / Leave:</span><span>₹${emp["Bonus / Leave Salary / Training"]}</span></div>
+          </div>
         `;
       } else {
         alert("❌ Incorrect password. Please try again.");
