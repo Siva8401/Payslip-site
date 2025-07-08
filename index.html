@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>MCC | Employee Payslip </title>
+  <title>Vijaya Pay | Employee Payslip Viewer</title>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
   <style>
@@ -84,6 +84,12 @@
       margin-top: 0;
       color: var(--primary);
     }
+    .message {
+      font-size: 0.95rem;
+      color: var(--red);
+      font-weight: 500;
+      margin-bottom: 1rem;
+    }
   </style>
 </head>
 <body>
@@ -95,12 +101,14 @@
     <select id="employeeSelect">
       <option value="">-- Select Employee --</option>
     </select>
+    <div id="noPasswordMessage" class="message" style="display:none;">No password set. Please create one below 👇</div>
     <input type="password" id="passwordInput" placeholder="Enter Password" style="display:none;">
     <button id="submitBtn" style="display:none;">View Payslip</button>
     <div id="payslip" class="payslip"></div>
     <div id="changePasswordBox" style="display:none; margin-top: 2rem;">
-      <h4>🔑 Change Password</h4>
+      <h4>🔑 Change / Create Password</h4>
       <input type="password" id="newPassword" placeholder="Enter New Password">
+      <input type="password" id="confirmPassword" placeholder="Confirm New Password">
       <button onclick="updatePassword()">Update Password</button>
     </div>
   </div>
@@ -139,59 +147,73 @@
       const selectedName = document.getElementById("employeeSelect").value;
       const enteredPassword = document.getElementById("passwordInput").value;
 
-      const emp = employees.find(e => e["Employee Name"] === selectedName && e["Password"] === enteredPassword);
+      const emp = employees.find(e => e["Employee Name"] === selectedName);
 
       if (emp) {
-        selectedEmployee = emp;
-        const box = document.getElementById("payslip");
-        box.style.display = "block";
-        document.getElementById("changePasswordBox").style.display = "block";
+        if (!emp["Password"]) {
+          document.getElementById("noPasswordMessage").style.display = "block";
+          selectedEmployee = emp;
+          document.getElementById("changePasswordBox").style.display = "block";
+          document.getElementById("payslip").style.display = "none";
+        } else if (emp["Password"] === enteredPassword) {
+          selectedEmployee = emp;
+          document.getElementById("noPasswordMessage").style.display = "none";
+          const box = document.getElementById("payslip");
+          box.style.display = "block";
+          document.getElementById("changePasswordBox").style.display = "block";
 
-        box.innerHTML = `
-          <h3>${emp["Employee Name"]}</h3>
-          <p><strong>Designation:</strong> ${emp["Designation"] || 'N/A'}</p>
-          <p><strong>Region:</strong> ${emp["Region"]} | <strong>State:</strong> ${emp["State"]}</p>
-          <p><strong>Project:</strong> ${emp["Project"]}</p>
-          <p><strong>Date of Joining:</strong> ${emp["Date of Joining"]} | <strong>Appraisal Due:</strong> ${emp["Apprisal Due"]}</p>
-          <p><strong>CTC:</strong> ₹${emp["CTC"]} | <strong>Take Home:</strong> ₹${emp["Takehome"]} | <strong>OH:</strong> ${emp["OH"]}</p>
-          <p><strong>Leaves Taken:</strong> ${emp["Leaves Taken"] || 'N/A'}</p>
+          box.innerHTML = `
+            <h3>${emp["Employee Name"]}</h3>
+            <p><strong>Designation:</strong> ${emp["Designation"] || 'N/A'}</p>
+            <p><strong>Region:</strong> ${emp["Region"]} | <strong>State:</strong> ${emp["State"]}</p>
+            <p><strong>Project:</strong> ${emp["Project"]}</p>
+            <p><strong>Date of Joining:</strong> ${emp["Date of Joining"]} | <strong>Appraisal Due:</strong> ${emp["Apprisal Due"]}</p>
+            <p><strong>CTC:</strong> ₹${emp["CTC"]} | <strong>Take Home:</strong> ₹${emp["Takehome"]} | <strong>OH:</strong> ${emp["OH"]}</p>
+            <p><strong>Leaves Taken:</strong> ${emp["Leaves Taken"] || 'N/A'}</p>
 
-          <h4>💰 Earnings</h4>
-          <p><strong>Basic:</strong> ₹${emp["Basic"]} | <strong>DA:</strong> ₹${emp["DA"]}</p>
-          <p><strong>Special Allowance:</strong> ₹${emp["Special Allow."]} | <strong>HRA:</strong> ₹${emp["HRA"]}</p>
-          <p><strong>Conveyance:</strong> ₹${emp["Conveyance"]} | <strong>Medical:</strong> ₹${emp["Medical"]}</p>
-          <p><strong>Special:</strong> ₹${emp["Special"]}</p>
-          <p><strong>Gross Salary:</strong> ₹${emp["Gross Salary"]} | <strong>Net Salary:</strong> ₹${emp["Net Salary"]}</p>
+            <h4>💰 Earnings</h4>
+            <p><strong>Basic:</strong> ₹${emp["Basic"]} | <strong>DA:</strong> ₹${emp["DA"]}</p>
+            <p><strong>Special Allowance:</strong> ₹${emp["Special Allow."]} | <strong>HRA:</strong> ₹${emp["HRA"]}</p>
+            <p><strong>Conveyance:</strong> ₹${emp["Conveyance"]} | <strong>Medical:</strong> ₹${emp["Medical"]}</p>
+            <p><strong>Special:</strong> ₹${emp["Special"]}</p>
+            <p><strong>Gross Salary:</strong> ₹${emp["Gross Salary"]} | <strong>Net Salary:</strong> ₹${emp["Net Salary"]}</p>
 
-          <h4>📉 Deductions</h4>
-          <p><strong>PF:</strong> ₹${emp["PF"]} | <strong>ESI:</strong> ₹${emp["ESI"]} | <strong>PT:</strong> ₹${emp["PT"]} | <strong>IT/INS:</strong> ₹${emp["IT/INS"]}</p>
-          <p><strong>Advance / VF:</strong> ₹${emp["Adv / vf"]}</p>
-          <p><strong>Total Deductions:</strong> ₹${emp["Total"]}</p>
+            <h4>📉 Deductions</h4>
+            <p><strong>PF:</strong> ₹${emp["PF"]} | <strong>ESI:</strong> ₹${emp["ESI"]} | <strong>PT:</strong> ₹${emp["PT"]} | <strong>IT/INS:</strong> ₹${emp["IT/INS"]}</p>
+            <p><strong>Advance / VF:</strong> ₹${emp["Adv / vf"]}</p>
+            <p><strong>Total Deductions:</strong> ₹${emp["Total"]}</p>
 
-          <h4>🟢 Final</h4>
-          <p><strong>Take Home Salary:</strong> ₹${emp["Take Home Salary"]}</p>
-          <p><strong>Medical Insurance:</strong> ₹${emp["M Insurance"]} | <strong>PA Insurance:</strong> ₹${emp["PA Insurance"]}</p>
-          <p><strong>Bonus / Leave Salary / Training:</strong> ₹${emp["Bonus / Leave Salary / Training"]}</p>
-        `;
+            <h4>🟢 Final</h4>
+            <p><strong>Take Home Salary:</strong> ₹${emp["Take Home Salary"]}</p>
+            <p><strong>Medical Insurance:</strong> ₹${emp["M Insurance"]} | <strong>PA Insurance:</strong> ₹${emp["PA Insurance"]}</p>
+            <p><strong>Bonus / Leave Salary / Training:</strong> ₹${emp["Bonus / Leave Salary / Training"]}</p>
+          `;
+        } else {
+          alert("Invalid password. Please try again.");
+        }
       } else {
-        alert("Invalid password. Please try again.");
+        alert("Employee not found.");
       }
     });
 
-function updatePassword() {
-  const newPass = document.getElementById("newPassword").value.trim();
-  if (!newPass || !selectedEmployee) return alert("Please enter a new password.");
+    function updatePassword() {
+      const newPass = document.getElementById("newPassword").value.trim();
+      const confirmPass = document.getElementById("confirmPassword").value.trim();
 
-  const updateURL = `https://script.google.com/macros/s/AKfycbzfMKBGSuag1HCZXXoY-YOju-RN3NlbduMbxAWkm8GhxtYK4orgu7Lgflagq_RUISVcgQ/exec?name=${encodeURIComponent(selectedEmployee["Employee Name"])}&newPassword=${encodeURIComponent(newPass)}`;
+      if (!newPass || !confirmPass) return alert("Please enter both password fields.");
+      if (newPass !== confirmPass) return alert("Passwords do not match.");
+      if (!selectedEmployee) return alert("No employee selected.");
 
-  fetch(updateURL)
-    .then(res => res.text())
-    .then(msg => {
-      alert("✅ Password updated successfully. Please login again.");
-      location.reload();  // 🔁 This will refetch the updated Google Sheet data
-    })
-    .catch(err => alert("❌ Failed to update password."));
-}
+      const updateURL = `https://script.google.com/macros/s/AKfycbzfMKBGSuag1HCZXXoY-YOju-RN3NlbduMbxAWkm8GhxtYK4orgu7Lgflagq_RUISVcgQ/exec?name=${encodeURIComponent(selectedEmployee["Employee Name"])}&newPassword=${encodeURIComponent(newPass)}`;
+
+      fetch(updateURL)
+        .then(res => res.text())
+        .then(msg => {
+          alert("Password updated successfully. Please reload and log in.");
+          location.reload();
+        })
+        .catch(err => alert("Failed to update password."));
+    }
   </script>
 </body>
 </html>
