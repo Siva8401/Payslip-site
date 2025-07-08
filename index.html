@@ -1,24 +1,77 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
   <meta charset="UTF-8">
-  <title>Payslip Viewer</title>
+  <title>Employee Payslip</title>
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
   <div class="container">
-    <h2>Employee Payslip Portal</h2>
-
+    <h2>Payslip Viewer</h2>
     <select id="employeeSelect">
       <option value="">-- Select Employee --</option>
     </select>
-
     <input type="password" id="passwordInput" placeholder="Enter Password" style="display:none;">
     <button id="submitBtn" style="display:none;">View Payslip</button>
-
     <div id="payslip" class="payslip-box" style="display:none;"></div>
   </div>
 
-  <script src="script.js"></script>
+  <script>
+    const sheetURL = 'https://docs.google.com/spreadsheets/d/e/PASTE_YOUR_LINK_HERE/pub?output=csv';
+
+    let employees = [];
+
+    fetch(sheetURL)
+      .then(response => response.text())
+      .then(csvText => {
+        const rows = csvText.split("\n").map(row => row.split(","));
+        const headers = rows[0];
+        employees = rows.slice(1).map(row => {
+          let emp = {};
+          headers.forEach((key, i) => emp[key.trim()] = row[i]?.trim());
+          return emp;
+        });
+
+        const select = document.getElementById("employeeSelect");
+        employees.forEach((emp, index) => {
+          const option = document.createElement("option");
+          option.value = index;
+          option.textContent = emp["Name"];
+          select.appendChild(option);
+        });
+      });
+
+    document.getElementById("employeeSelect").addEventListener("change", () => {
+      document.getElementById("passwordInput").style.display = "block";
+      document.getElementById("submitBtn").style.display = "block";
+    });
+
+    document.getElementById("submitBtn").addEventListener("click", () => {
+      const index = document.getElementById("employeeSelect").value;
+      const enteredPassword = document.getElementById("passwordInput").value;
+
+      if (!employees[index]) return;
+
+      if (employees[index]["Password"] === enteredPassword) {
+        const emp = employees[index];
+        const div = document.getElementById("payslip");
+        div.style.display = "block";
+        div.innerHTML = `
+          <h3>Payslip for ${emp["Name"]}</h3>
+          <p><strong>Region:</strong> ${emp["Region"]}</p>
+          <p><strong>State:</strong> ${emp["State"]}</p>
+          <p><strong>Date of Joining:</strong> ${emp["DOJ"]}</p>
+          <p><strong>Project:</strong> ${emp["Project"]}</p>
+          <p><strong>CTC:</strong> ₹${emp["CTC"]}</p>
+          <p><strong>Gross:</strong> ₹${emp["Gross"]}</p>
+          <p><strong>Net:</strong> ₹${emp["Net"]}</p>
+          <p><strong>Deductions:</strong> PT: ₹${emp["PT"]}, ESI: ₹${emp["ESI"]}, IT: ₹${emp["IT"]}</p>
+          <p><strong>Final Takehome:</strong> ₹${emp["Final Takehome"]}</p>
+        `;
+      } else {
+        alert("Incorrect password!");
+      }
+    });
+  </script>
 </body>
 </html>
