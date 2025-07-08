@@ -178,17 +178,20 @@
       }
     });
 
-    function updatePassword() {
-      const newPass = document.getElementById("newPassword").value.trim();
-      if (!newPass || !selectedEmployee) return alert("Please enter a new password.");
+function updatePassword() {
+  const newPass = document.getElementById("newPassword").value.trim();
+  if (!newPass || !selectedEmployee) return alert("Please enter a new password.");
 
-      const updateURL = `https://script.google.com/macros/s/AKfycbzfMKBGSuag1HCZXXoY-YOju-RN3NlbduMbxAWkm8GhxtYK4orgu7Lgflagq_RUISVcgQ/exec?name=${encodeURIComponent(selectedEmployee["Employee Name"])}&newPassword=${encodeURIComponent(newPass)}`;
+  const updateURL = `https://script.google.com/macros/s/AKfycbzfMKBGSuag1HCZXXoY-YOju-RN3NlbduMbxAWkm8GhxtYK4orgu7Lgflagq_RUISVcgQ/exec?name=${encodeURIComponent(selectedEmployee["Employee Name"])}&newPassword=${encodeURIComponent(newPass)}`;
 
-      fetch(updateURL)
-        .then(res => res.text())
-        .then(msg => alert("Password updated successfully."))
-        .catch(err => alert("Failed to update password."));
-    }
+  fetch(updateURL)
+    .then(res => res.text())
+    .then(msg => {
+      alert("✅ Password updated successfully. Please login again.");
+      location.reload();  // 🔁 This will refetch the updated Google Sheet data
+    })
+    .catch(err => alert("❌ Failed to update password."));
+}
   </script>
 </body>
 </html>
