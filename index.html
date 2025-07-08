@@ -2,31 +2,32 @@
 <html>
 <head>
   <meta charset="UTF-8">
-  <title>Payslip Portal</title>
+  <title>Employee Payslip Viewer</title>
   <style>
     body {
       font-family: Arial, sans-serif;
-      padding: 40px;
-      background: #f0f2f5;
+      background-color: #f4f6f8;
+      padding: 30px;
+      text-align: center;
     }
     .container {
-      max-width: 500px;
-      background: #fff;
-      margin: auto;
+      background: white;
       padding: 20px;
-      border-radius: 8px;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+      border-radius: 10px;
+      max-width: 600px;
+      margin: auto;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
     }
-    input, select, button {
-      width: 100%;
+    select, input, button {
       padding: 10px;
       margin: 10px 0;
-      font-size: 15px;
+      width: 100%;
+      font-size: 16px;
     }
     .payslip-box {
-      background: #e6fff0;
+      background: #e3ffe3;
       padding: 15px;
-      border-radius: 6px;
+      border-radius: 8px;
       margin-top: 20px;
       text-align: left;
     }
@@ -34,7 +35,7 @@
 </head>
 <body>
   <div class="container">
-    <h2>Employee Payslip</h2>
+    <h2>Employee Payslip Portal</h2>
     <select id="employeeSelect"><option value="">-- Select Employee --</option></select>
     <input type="password" id="passwordInput" placeholder="Enter Password" style="display:none;">
     <button id="submitBtn" style="display:none;">View Payslip</button>
@@ -43,24 +44,27 @@
 
   <script>
     const sheetURL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vQrLihmERkwNQcGyoYcEnpWBu732YOewgCZgjt6ylykJd0Mc68tETA3gh_MsmylaYfyHl6EvP7Taeee/pub?gid=0&single=true&output=csv';
+
     let employees = [];
 
     fetch(sheetURL)
       .then(res => res.text())
       .then(csv => {
         const lines = csv.trim().split('\n');
-        const headers = lines[0].split(',');
+        const headers = lines[0].split(',').map(h => h.trim());
         employees = lines.slice(1).map(row => {
           const values = row.split(',');
-          let obj = {};
-          headers.forEach((h, i) => obj[h.trim()] = values[i]?.trim());
-          return obj;
+          let emp = {};
+          headers.forEach((key, i) => {
+            emp[key] = values[i]?.trim();
+          });
+          return emp;
         });
 
         const select = document.getElementById("employeeSelect");
-        employees.forEach((emp, i) => {
+        employees.forEach((emp, index) => {
           const opt = document.createElement("option");
-          opt.value = i;
+          opt.value = index;
           opt.textContent = emp["Employee Name"];
           select.appendChild(opt);
         });
@@ -72,27 +76,29 @@
     });
 
     document.getElementById("submitBtn").addEventListener("click", () => {
-      const idx = document.getElementById("employeeSelect").value;
-      const pwd = document.getElementById("passwordInput").value;
-      const emp = employees[idx];
+      const index = document.getElementById("employeeSelect").value;
+      const password = document.getElementById("passwordInput").value;
+      const emp = employees[index];
 
-      if (emp["Password"] === pwd) {
-        document.getElementById("payslip").style.display = "block";
-        document.getElementById("payslip").innerHTML = `
+      if (emp["Password"] === password) {
+        const box = document.getElementById("payslip");
+        box.style.display = "block";
+
+        box.innerHTML = `
           <h3>${emp["Employee Name"]}</h3>
-          <p><b>Region:</b> ${emp["Region"]} | <b>State:</b> ${emp["State"]}</p>
-          <p><b>Project:</b> ${emp["Project"]}</p>
-          <p><b>Date of Joining:</b> ${emp["Date of Joining"]}</p>
-          <p><b>Appraisal Due:</b> ${emp["Apprisal Due"]}</p>
-          <p><b>CTC:</b> ₹${emp["CTC"]} | <b>Take Home:</b> ₹${emp["Takehome"]}</p>
-          <p><b>Gross Salary:</b> ₹${emp["Gross Salary"]} | <b>Net Salary:</b> ₹${emp["Net Salary"]}</p>
-          <p><b>Deductions:</b> PF ₹${emp["PF"]}, ESI ₹${emp["ESI"]}, PT ₹${emp["PT"]}, IT ₹${emp["IT/INS"]}</p>
-          <p><b>Final Take Home:</b> ₹${emp["Take Home Salary"]}</p>
-          <p><b>Insurance:</b> Medical ₹${emp["M Insurance"]}, PA ₹${emp["PA Insurance"]}</p>
-          <p><b>Bonus / Leave Salary:</b> ₹${emp["Bonus / Leave Salary / Training"]}</p>
+          <p><strong>Region:</strong> ${emp["Region"]} | <strong>State:</strong> ${emp["State"]}</p>
+          <p><strong>Project:</strong> ${emp["Project"]}</p>
+          <p><strong>Date of Joining:</strong> ${emp["Date of Joining"]}</p>
+          <p><strong>CTC:</strong> ₹${emp["CTC"]}</p>
+          <p><strong>Gross Salary:</strong> ₹${emp["Gross Salary"]}</p>
+          <p><strong>Net Salary:</strong> ₹${emp["Net Salary"]}</p>
+          <p><strong>Deductions:</strong> PF: ₹${emp["PF"]}, ESI: ₹${emp["ESI"]}, PT: ₹${emp["PT"]}, IT: ₹${emp["IT/INS"]}</p>
+          <p><strong>Take Home Salary:</strong> ₹${emp["Take Home Salary"]}</p>
+          <p><strong>Insurance:</strong> Medical ₹${emp["M Insurance"]}, PA ₹${emp["PA Insurance"]}</p>
+          <p><strong>Bonus / Leave Salary:</strong> ₹${emp["Bonus / Leave Salary / Training"]}</p>
         `;
       } else {
-        alert("Incorrect password. Please try again.");
+        alert("❌ Incorrect password. Please try again.");
       }
     });
   </script>
