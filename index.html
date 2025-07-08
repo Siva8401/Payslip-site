@@ -72,7 +72,13 @@
       right: 10px;
       cursor: pointer;
       color: var(--gray);
-      font-size: 1rem;
+      font-size: 1.2rem;
+    }
+    .toggle-password::before {
+      content: "\1F441"; /* 👁 icon */
+    }
+    .toggle-password.show::before {
+      content: "\1F576"; /* 🕶 icon */
     }
     button {
       background: var(--primary);
@@ -122,27 +128,29 @@
     <div id="noPasswordMessage" class="message error" style="display:none;">No password set. Please create one below 👇</div>
     <div class="password-wrapper" style="display:none;" id="passwordWrapper">
       <input type="password" id="passwordInput" placeholder="Enter Password">
-      <span class="toggle-password" onclick="toggleVisibility('passwordInput', this)">👁️</span>
+      <span class="toggle-password" onclick="toggleVisibility(this, 'passwordInput')"></span>
     </div>
     <button id="submitBtn" style="display:none;">View Payslip</button>
     <div id="payslip" class="payslip"></div>
     <div id="changePasswordBox" style="display:none; margin-top: 2rem;">
-      <h4>🔑 Change / Create Password</h4>
+      <h4>Change / Create Password</h4>
       <div class="password-wrapper">
         <input type="password" id="newPassword" placeholder="Enter New Password">
-        <span class="toggle-password" onclick="toggleVisibility('newPassword', this)">👁️</span>
+        <span class="toggle-password" onclick="toggleVisibility(this, 'newPassword')"></span>
       </div>
       <div class="password-wrapper">
         <input type="password" id="confirmPassword" placeholder="Confirm New Password">
-        <span class="toggle-password" onclick="toggleVisibility('confirmPassword', this)">👁️</span>
+        <span class="toggle-password" onclick="toggleVisibility(this, 'confirmPassword')"></span>
       </div>
       <button onclick="updatePassword()">Update Password</button>
       <div id="passwordSuccess" class="message success" style="display:none;">✅ Password updated successfully!</div>
     </div>
   </div>
+
   <script>
     const sheetUrl = "https://docs.google.com/spreadsheets/d/e/2PACX-1vQrLihmERkwNQcGyoYcEnpWBu732YOewgCZgjt6ylykJd0Mc68tETA3gh_MsmylaYfyHl6EvP7Taeee/pub?gid=0&single=true&output=csv";
     let employees = [];
+    let selectedEmployee;
 
     fetch(sheetUrl)
       .then(res => res.text())
@@ -169,8 +177,6 @@
       document.getElementById("submitBtn").style.display = "block";
     });
 
-    let selectedEmployee;
-
     document.getElementById("submitBtn").addEventListener("click", () => {
       const selectedName = document.getElementById("employeeSelect").value;
       const enteredPassword = document.getElementById("passwordInput").value;
@@ -185,10 +191,10 @@
         } else if (emp["Password"] === enteredPassword) {
           selectedEmployee = emp;
           document.getElementById("noPasswordMessage").style.display = "none";
-          const box = document.getElementById("payslip");
-          box.style.display = "block";
           document.getElementById("changePasswordBox").style.display = "block";
 
+          const box = document.getElementById("payslip");
+          box.style.display = "block";
           box.innerHTML = `
             <h3>${emp["Employee Name"]}</h3>
             <p><strong>Designation:</strong> ${emp["Designation"] || 'N/A'}</p>
@@ -197,20 +203,6 @@
             <p><strong>Date of Joining:</strong> ${emp["Date of Joining"]} | <strong>Appraisal Due:</strong> ${emp["Apprisal Due"]}</p>
             <p><strong>CTC:</strong> ₹${emp["CTC"]} | <strong>Take Home:</strong> ₹${emp["Takehome"]} | <strong>OH:</strong> ${emp["OH"]}</p>
             <p><strong>Leaves Taken:</strong> ${emp["Leaves Taken"] || 'N/A'}</p>
-            <h4>💰 Earnings</h4>
-            <p><strong>Basic:</strong> ₹${emp["Basic"]} | <strong>DA:</strong> ₹${emp["DA"]}</p>
-            <p><strong>Special Allowance:</strong> ₹${emp["Special Allow."]} | <strong>HRA:</strong> ₹${emp["HRA"]}</p>
-            <p><strong>Conveyance:</strong> ₹${emp["Conveyance"]} | <strong>Medical:</strong> ₹${emp["Medical"]}</p>
-            <p><strong>Special:</strong> ₹${emp["Special"]}</p>
-            <p><strong>Gross Salary:</strong> ₹${emp["Gross Salary"]} | <strong>Net Salary:</strong> ₹${emp["Net Salary"]}</p>
-            <h4>📉 Deductions</h4>
-            <p><strong>PF:</strong> ₹${emp["PF"]} | <strong>ESI:</strong> ₹${emp["ESI"]} | <strong>PT:</strong> ₹${emp["PT"]} | <strong>IT/INS:</strong> ₹${emp["IT/INS"]}</p>
-            <p><strong>Advance / VF:</strong> ₹${emp["Adv / vf"]}</p>
-            <p><strong>Total Deductions:</strong> ₹${emp["Total"]}</p>
-            <h4>🟢 Final</h4>
-            <p><strong>Take Home Salary:</strong> ₹${emp["Take Home Salary"]}</p>
-            <p><strong>Medical Insurance:</strong> ₹${emp["M Insurance"]} | <strong>PA Insurance:</strong> ₹${emp["PA Insurance"]}</p>
-            <p><strong>Bonus / Leave Salary / Training:</strong> ₹${emp["Bonus / Leave Salary / Training"]}</p>
           `;
         } else {
           alert("Invalid password. Please try again.");
@@ -240,14 +232,14 @@
         .catch(err => alert("Failed to update password."));
     }
 
-    function toggleVisibility(id, el) {
-      const input = document.getElementById(id);
+    function toggleVisibility(el, inputId) {
+      const input = document.getElementById(inputId);
       if (input.type === "password") {
         input.type = "text";
-        el.textContent = "🙈";
+        el.classList.add("show");
       } else {
         input.type = "password";
-        el.textContent = "👁️";
+        el.classList.remove("show");
       }
     }
   </script>
