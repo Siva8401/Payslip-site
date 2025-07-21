@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Dynamic Payslip | Bloom Electronics</title>
+  <title>Secure Payslip Portal | Bloom Electronics</title>
   <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@700&family=Inter:wght@400;600&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
@@ -16,6 +16,8 @@
       --light-gray: #e5e7eb;
       --dark-blue: #23325a;
       --border: #e3e8ef;
+      --green: #10b981;
+      --red: #ef4444;
     }
     body {
       font-family: 'Inter', sans-serif;
@@ -55,13 +57,18 @@
     .title { text-align: center; font-family: 'Montserrat', sans-serif; font-size: 1.18rem; font-weight: 700;
       letter-spacing: 0.03em; margin: 18px 0 24px 0; color: var(--primary); text-shadow: 0 1px 1px #f1d9df;
     }
-    .controls { display: flex; gap: 20px; margin-bottom: 22px; flex-wrap: wrap; }
-    .select-wrapper { flex: 1; min-width: 200px; }
-    select, button, .btn { width: 100%; padding: 12px 16px; font-size: 1rem; border-radius: 8px;
+    .login-form { display: block; }
+    .after-login { display: none; }
+    .row-flex { display: flex; gap: 12px; margin-bottom: 16px; }
+    .input-wrapper { flex: 1; }
+    input, select, button, .btn {
+      width: 100%; padding: 12px 16px; font-size: 1rem; border-radius: 8px;
       border: 1px solid var(--light-gray); background: var(--white); font-family: 'Inter', sans-serif;
+      margin-bottom: 12px;
     }
-    button, .btn { background: var(--primary); color: var(--white); font-weight: 600; cursor: pointer;
-      transition: background 0.3s; border: none; margin-top: 0;
+    button, .btn {
+      background: var(--primary); color: var(--white); font-weight: 600; cursor: pointer;
+      transition: background 0.3s; border: none; margin-top: 12px;
     }
     button:hover { background: #d62828; }
     .btn.blue { background: #4f5bd1; }
@@ -95,7 +102,10 @@
     .in-words { font-size: 1rem; color: #386591; font-style: italic; margin-top: 6px; }
     .highlight { color: var(--primary); font-weight: 700; }
     .message { margin: 10px 0; color: var(--primary); font-weight: 600; text-align: center; }
-    #container { width: 100%; }
+    .success { color: var(--green); }
+    .error { color: var(--red); }
+    #payslip-container { width: 100%; }
+    #payPeriodSelect { width: 100%; margin-bottom: 16px; }
   </style>
 </head>
 <body>
@@ -107,115 +117,192 @@
         <div class="address">365, Bharathiyar Rd, Siddhapudur, New Siddhapudur, Coimbatore, Tamil Nadu, Pincode - 641044</div>
       </div>
     </div>
-    <div class="title">Salary Payslip for the Month of <span id="monthYear">Jan-2024</span></div>
-    <div class="controls">
-      <div class="select-wrapper">
-        <select id="employeeSelect">
-          <option value="">-- Select Employee --</option>
-        </select>
+    <div class="title">Secure Employee Payslip Portal</div>
+
+    <!-- Login Form -->
+    <div id="loginBox" class="login-form">
+      <div class="row-flex">
+        <div class="input-wrapper"><input type="text" id="employeeId" placeholder="Employee ID"></div>
+        <div class="input-wrapper"><input type="text" id="username" placeholder="Username"></div>
       </div>
-      <div class="select-wrapper">
-        <select id="monthSelect">
-          <option value="">-- Select Month --</option>
-        </select>
+      <div class="row-flex">
+        <div class="input-wrapper"><input type="password" id="password" placeholder="Password"></div>
       </div>
+      <button id="loginBtn">🔐 Login</button>
+      <div id="loginMessage" class="message"></div>
     </div>
-    <div id="message" class="message"></div>
-    <div id="payslip">
-      <!-- Dynamic content goes here -->
+
+    <!-- After Login -->
+    <div id="afterLogin" class="after-login">
+      <div class="message success" id="welcomeMessage"></div>
+      <div class="row-flex">
+        <div class="input-wrapper">
+          <select id="payPeriodSelect">
+            <option value="">-- Select Pay Period --</option>
+          </select>
+        </div>
+        <button id="viewPayslipBtn" class="btn blue">View Payslip</button>
+      </div>
+      <div id="payslipMessage" class="message"></div>
+      <div id="payslip-container"></div>
+      <button id="downloadBtn" class="btn blue" style="display:none; margin-top: 20px;" onclick="downloadAsPDF()">
+        <i class="fas fa-download"></i> Download Payslip PDF
+      </button>
+      <button id="logoutBtn" class="btn blue" style="background: #6b7280;">Logout</button>
     </div>
-    <button id="downloadBtn" class="btn blue" style="display:none; margin-top: 20px;" onclick="downloadAsPDF()">
-      <i class="fas fa-download"></i> Download Payslip PDF
-    </button>
   </div>
 
   <script>
-    // Replace with your Google Sheets CSV export URL
-    const sheetUrl = "https://docs.google.com/spreadsheets/d/e/2PACX-1vQrLihmERkwNQcGyoYcEnpWBu732YOewgCZgjt6ylykJd0Mc68tETA3gh_MsmylaYfyHl6EvP7Taeee/pub?gid=0&single=true&output=csv";
+    // Replace with your Google Sheets CSV export URL (payslip data)
+    const payslipSheetUrl = "https://docs.google.com/spreadsheets/d/e/2PACX-1vQrLihmERkwNQcGyoYcEnpWBu732YOewgCZgjt6ylykJd0Mc68tETA3gh_MsmylaYfyHl6EvP7Taeee/pub?gid=0&single=true&output=csv";
+    // Replace with your Google Sheets CSV export URL (login credentials)
+    const loginSheetUrl = "https://docs.google.com/spreadsheets/d/e/2PACX-1vQrLihmERkwNQcGyoYcEnpWBu732YOewgCZgjt6ylykJd0Mc68tETA3gh_MsmylaYfyHl6EvP7Taeee/pub?gid=1&single=true&output=csv";
+    // Store data
     let allPayslips = [];
-    let employees = [];
-    let months = [];
+    let allCredentials = [];
+    let currentEmployee = null;
+    let availablePeriods = [];
+    let currentPayslip = null;
 
-    // Fetch all data from Google Sheet
-    fetch(sheetUrl)
-      .then(res => res.text())
-      .then(data => {
-        const rows = data.trim().split('\n').map(row => row.split(','));
-        const headers = rows[0].map(h => h.trim());
-        allPayslips = rows.slice(1).map(row => {
-          let obj = {};
-          headers.forEach((h, i) => obj[h] = row[i]?.trim());
-          return obj;
-        });
-
-        // Get unique employees and months
-        employees = [...new Set(allPayslips.map(p => p['Employee Name']))].filter(Boolean).sort();
-        months = [...new Set(allPayslips.map(p => `${p['Month']}-${p['Year']}`))].filter(Boolean).sort((a, b) => {
-          const [ma, ya] = a.split('-');
-          const [mb, yb] = b.split('-');
-          return new Date(ya, ma - 1) - new Date(yb, mb - 1);
-        });
-
-        // Populate dropdowns
-        const empSelect = document.getElementById('employeeSelect');
-        employees.forEach(emp => {
-          const opt = document.createElement('option');
-          opt.value = emp;
-          opt.textContent = emp;
-          empSelect.appendChild(opt);
-        });
-
-        const monthSelect = document.getElementById('monthSelect');
-        months.forEach(m => {
-          const opt = document.createElement('option');
-          opt.value = m;
-          opt.textContent = m;
-          monthSelect.appendChild(opt);
-        });
-
-        // Listen for changes
-        empSelect.addEventListener('change', updatePayslip);
-        monthSelect.addEventListener('change', updatePayslip);
+    // Fetch data from both sheets
+    Promise.all([
+      fetch(payslipSheetUrl).then(res => res.text()),
+      fetch(loginSheetUrl).then(res => res.text())
+    ]).then(([payslipCsv, loginCsv]) => {
+      // Parse payslip data
+      const payslipRows = payslipCsv.trim().split('\n').map(row => row.split(','));
+      const payslipHeaders = payslipRows[0].map(h => h.trim());
+      allPayslips = payslipRows.slice(1).map(row => {
+        let obj = {};
+        payslipHeaders.forEach((h, i) => obj[h] = row[i]?.trim());
+        return obj;
       });
 
-    // Update payslip display
-    function updatePayslip() {
-      const empName = document.getElementById('employeeSelect').value;
-      const monthYear = document.getElementById('monthSelect').value;
-      const message = document.getElementById('message');
-      const payslipContainer = document.getElementById('payslip');
+      // Parse login data
+      const loginRows = loginCsv.trim().split('\n').map(row => row.split(','));
+      const loginHeaders = loginRows[0].map(h => h.trim());
+      allCredentials = loginRows.slice(1).map(row => {
+        let obj = {};
+        loginHeaders.forEach((h, i) => obj[h] = row[i]?.trim());
+        return obj;
+      });
+
+      // Attach login handler
+      document.getElementById('loginBtn').addEventListener('click', handleLogin);
+      document.getElementById('logoutBtn').addEventListener('click', handleLogout);
+      document.getElementById('viewPayslipBtn').addEventListener('click', viewSelectedPayslip);
+    }).catch(err => {
+      document.getElementById('loginMessage').textContent = 'Failed to load data. Please try again.';
+      document.getElementById('loginMessage').className = 'message error';
+    });
+
+    // Login handler
+    function handleLogin() {
+      const empId = document.getElementById('employeeId').value.trim();
+      const username = document.getElementById('username').value.trim();
+      const password = document.getElementById('password').value.trim();
+      const message = document.getElementById('loginMessage');
+
+      if (!empId || !username || !password) {
+        message.textContent = 'Please fill all fields.';
+        message.className = 'message error';
+        return;
+      }
+
+      // Find matching credential
+      const credential = allCredentials.find(c =>
+        c['Employee ID'] === empId &&
+        c['Username'] === username &&
+        c['Password'] === password
+      );
+
+      if (!credential) {
+        message.textContent = 'Invalid credentials.';
+        message.className = 'message error';
+        return;
+      }
+
+      // Login successful!
+      message.textContent = '';
+      currentEmployee = { empId, username, name: credential['Employee Name'] || username };
+      document.getElementById('loginBox').style.display = 'none';
+      document.getElementById('afterLogin').style.display = 'block';
+      document.getElementById('welcomeMessage').textContent = `Welcome, ${currentEmployee.name}!`;
+
+      // Populate pay period dropdown (only periods available for this employee)
+      const periods = [...new Set(
+        allPayslips
+          .filter(p => p['Employee ID'] === empId)
+          .map(p => `${p['Month']}-${p['Year']}`)
+      )].sort((a, b) => {
+        const [ma, ya] = a.split('-');
+        const [mb, yb] = b.split('-');
+        return new Date(ya, ma - 1) - new Date(yb, mb - 1);
+      });
+      const select = document.getElementById('payPeriodSelect');
+      select.innerHTML = '<option value="">-- Select Pay Period --</option>';
+      periods.forEach(p => {
+        const opt = document.createElement('option');
+        opt.value = p;
+        opt.textContent = p;
+        select.appendChild(opt);
+      });
+      availablePeriods = periods;
+    }
+
+    // Logout handler
+    function handleLogout() {
+      currentEmployee = null;
+      document.getElementById('loginBox').style.display = 'block';
+      document.getElementById('afterLogin').style.display = 'none';
+      document.getElementById('employeeId').value = '';
+      document.getElementById('username').value = '';
+      document.getElementById('password').value = '';
+      document.getElementById('payslip-container').innerHTML = '';
+      document.getElementById('downloadBtn').style.display = 'none';
+    }
+
+    // Show payslip for selected period
+    function viewSelectedPayslip() {
+      const period = document.getElementById('payPeriodSelect').value;
+      const message = document.getElementById('payslipMessage');
+      const container = document.getElementById('payslip-container');
       const downloadBtn = document.getElementById('downloadBtn');
 
-      if (!empName || !monthYear) {
-        message.textContent = 'Please select both Employee and Month.';
-        payslipContainer.innerHTML = '';
+      if (!period) {
+        message.textContent = 'Please select a pay period.';
+        message.className = 'message error';
+        container.innerHTML = '';
         downloadBtn.style.display = 'none';
         return;
       }
 
-      const [month, year] = monthYear.split('-');
+      // Find the payslip
+      const [month, year] = period.split('-');
       const payslip = allPayslips.find(p =>
-        p['Employee Name'] === empName &&
+        p['Employee ID'] === currentEmployee.empId &&
         p['Month'] === month &&
         p['Year'] === year
       );
 
       if (!payslip) {
-        message.textContent = 'No payslip found for this employee and month.';
-        payslipContainer.innerHTML = '';
+        message.textContent = 'No payslip found for this period.';
+        message.className = 'message error';
+        container.innerHTML = '';
         downloadBtn.style.display = 'none';
         return;
       }
 
       message.textContent = '';
-      document.getElementById('monthYear').textContent = `${month}-${year}`;
+      downloadBtn.style.display = 'block';
+      currentPayslip = payslip;
 
-      // Generate HTML
-      payslipContainer.innerHTML = `
+      // Render the payslip (use your template!)
+      container.innerHTML = `
         <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 16px;">
           <table class="info-table">
             <tr><td>Employee ID</td><td>: ${payslip['Employee ID'] || '-'}</td></tr>
-            <tr><td>Employee Name</td><td>: ${empName}</td></tr>
+            <tr><td>Employee Name</td><td>: ${payslip['Employee Name'] || currentEmployee.name}</td></tr>
             <tr><td>Project</td><td>: ${payslip['Project'] || '-'}</td></tr>
             <tr><td>Designation</td><td>: ${payslip['Designation'] || '-'}</td></tr>
             <tr><td>Date of Joining</td><td>: ${payslip['Date of Joining'] || '-'}</td></tr>
@@ -258,16 +345,16 @@
           <div class="in-words">Salary In Words: ${payslip['SALARY WORDS'] || '-'}</div>
         </div>
       `;
-      downloadBtn.style.display = 'block';
     }
 
     // PDF Export
     function downloadAsPDF() {
-      const element = document.getElementById('payslip');
-      if (!element.innerHTML.trim()) return alert('No payslip to download.');
+      if (!currentPayslip) return;
+      const element = document.getElementById('payslip-container');
+      if (!element.innerHTML.trim()) return;
       const opt = {
         margin: 0.5,
-        filename: `Payslip_${document.getElementById('employeeSelect').value}_${document.getElementById('monthSelect').value}.pdf`,
+        filename: `Payslip_${currentEmployee.empId}_${document.getElementById('payPeriodSelect').value}.pdf`,
         image: { type: 'jpeg', quality: 0.98 },
         html2canvas: { scale: 2 },
         jsPDF: { unit: 'in', format: 'A4', orientation: 'portrait' }
