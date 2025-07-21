@@ -1,366 +1,225 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Secure Payslip Portal | Bloom Electronics</title>
-  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@700&family=Inter:wght@400;600&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>🌐 Bloom Payslip Portal</title>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap">
   <style>
-    :root {
-      --primary: #e63946;
-      --background: #f1f5f9;
-      --white: #fff;
-      --gray: #6b7280;
-      --light-gray: #e5e7eb;
-      --dark-blue: #23325a;
-      --border: #e3e8ef;
-      --green: #10b981;
-      --red: #ef4444;
-    }
     body {
       font-family: 'Inter', sans-serif;
-      background: var(--background);
+      background: #f1f5f9;
       margin: 0;
-      padding: 40px 0;
-      min-height: 100vh;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
+      padding: 20px;
     }
-    .card {
-      background: var(--white);
-      max-width: 750px;
+    .container {
+      max-width: 600px;
+      background: #ffffff;
       margin: 0 auto;
-      border-radius: 18px;
-      box-shadow: 0 10px 32px rgba(72, 105, 144, 0.12);
-      border: 1.5px solid var(--border);
-      padding: 30px 38px 36px 38px;
-      margin-bottom: 40px;
+      padding: 30px;
+      border-radius: 12px;
+      box-shadow: 0 8px 25px rgba(0,0,0,0.08);
+    }
+    h1 {
+      text-align: center;
+      color: #e63946;
+    }
+    label {
+      display: block;
+      margin: 15px 0 5px;
+      font-weight: 600;
+      color: #374151;
+    }
+    select, input {
       width: 100%;
+      padding: 10px;
+      font-size: 1rem;
+      border: 1px solid #e5e7eb;
+      border-radius: 6px;
     }
-    .logo {
-      width: 84px; height: 84px; border-radius: 25px; margin-right: 22px;
-      background: #fef9c3; display: flex; align-items: center; justify-content: center;
+    button {
+      width: 100%;
+      margin-top: 20px;
+      padding: 12px;
+      font-size: 1rem;
+      background: #e63946;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
     }
-    .logo img { width: 75px; height: 75px; }
-    .header {
-      display: flex; align-items: center; margin-bottom: 20px;
-      border-bottom: 3px solid var(--light-gray); padding-bottom: 10px;
+    button:hover {
+      background: #d62828;
     }
-    .header-text { flex: 1; }
-    .company {
-      font-family: 'Montserrat', sans-serif; font-weight: 700; color: var(--dark-blue); font-size: 1.22rem;
+    .hidden {
+      display: none;
     }
-    .address { font-size: 0.96rem; color: var(--gray); margin-top: 3px; }
-    .title { text-align: center; font-family: 'Montserrat', sans-serif; font-size: 1.18rem; font-weight: 700;
-      letter-spacing: 0.03em; margin: 18px 0 24px 0; color: var(--primary); text-shadow: 0 1px 1px #f1d9df;
+    .message {
+      margin-top: 15px;
+      font-weight: bold;
+      color: #ef4444;
     }
-    .login-form { display: block; }
-    .after-login { display: none; }
-    .row-flex { display: flex; gap: 12px; margin-bottom: 16px; }
-    .input-wrapper { flex: 1; }
-    input, select, button, .btn {
-      width: 100%; padding: 12px 16px; font-size: 1rem; border-radius: 8px;
-      border: 1px solid var(--light-gray); background: var(--white); font-family: 'Inter', sans-serif;
-      margin-bottom: 12px;
+    .payslip-box {
+      background: #f3f4f6;
+      padding: 20px;
+      border-radius: 8px;
+      margin-top: 20px;
     }
-    button, .btn {
-      background: var(--primary); color: var(--white); font-weight: 600; cursor: pointer;
-      transition: background 0.3s; border: none; margin-top: 12px;
-    }
-    button:hover { background: #d62828; }
-    .btn.blue { background: #4f5bd1; }
-    .btn.blue:hover { background: #3b4ddd; }
-    .info-table { font-size: 1rem; min-width: 350px; margin: 0 0 16px 0; }
-    .info-table td { padding: 4px 0; }
-    .info-table td:first-child { font-weight: 600; color: #4b4b57; }
-    .pay-box {
-      border: 2px solid #486990; background: #eaf0fa; border-radius: 12px; min-width: 180px; text-align: center;
-      padding: 12px 0; margin-left: 20px; color: #214095; font-family: 'Montserrat', sans-serif;
-      font-weight: 700; display: flex; flex-direction: column; justify-content: center;
-    }
-    .pay-box .amount { font-size: 1.8rem; color: #0e2050; margin: 8px 0 4px 0; letter-spacing: 2px; }
-    .pay-box .sub { color: var(--primary); font-size: 1rem; font-weight: 600; }
-    .details-grid {
-      display: grid; grid-template-columns: 1fr 1fr; gap: 10px 18px; margin: 16px 0;
-    }
-    .details-grid .label { font-weight: 600; color: #4b4b57; }
-    .details-grid .value { color: #2c3a52; }
-    .earn-deduct-table {
-      width: 100%; margin: 22px 0 5px 0; border-collapse: collapse; font-size: 1rem;
-    }
-    .earn-deduct-table th, .earn-deduct-table td {
-      border-bottom: 1px solid var(--light-gray); padding: 9px 7px; text-align: left;
-    }
-    .earn-deduct-table th { color: var(--primary); font-size: 1.1rem; font-weight: 700; }
-    .earn-deduct-table td:last-child { text-align: right; }
-    .foot-row td { border-bottom: 2px solid var(--primary) !important; font-weight: 700; }
-    .totals-row td { background: #f8d7da; font-weight: 700; color: var(--primary); }
-    .bottom-info { margin-top: 14px; color: var(--dark-blue); font-weight: 600; }
-    .in-words { font-size: 1rem; color: #386591; font-style: italic; margin-top: 6px; }
-    .highlight { color: var(--primary); font-weight: 700; }
-    .message { margin: 10px 0; color: var(--primary); font-weight: 600; text-align: center; }
-    .success { color: var(--green); }
-    .error { color: var(--red); }
-    #payslip-container { width: 100%; }
-    #payPeriodSelect { width: 100%; margin-bottom: 16px; }
   </style>
 </head>
+
 <body>
-  <div class="card">
-    <div class="header">
-      <div class="logo"><img src="Bloom Logo.png" alt="Bloom Logo"></div>
-      <div class="header-text">
-        <div class="company">Bloom Electronics Private Limited</div>
-        <div class="address">365, Bharathiyar Rd, Siddhapudur, New Siddhapudur, Coimbatore, Tamil Nadu, Pincode - 641044</div>
-      </div>
-    </div>
-    <div class="title">Secure Employee Payslip Portal</div>
+<div class="container">
+  <h1>🧾 Employee Payslip Portal</h1>
 
-    <!-- Login Form -->
-    <div id="loginBox" class="login-form">
-      <div class="row-flex">
-        <div class="input-wrapper"><input type="text" id="employeeId" placeholder="Employee ID"></div>
-        <div class="input-wrapper"><input type="text" id="username" placeholder="Username"></div>
-      </div>
-      <div class="row-flex">
-        <div class="input-wrapper"><input type="password" id="password" placeholder="Password"></div>
-      </div>
-      <button id="loginBtn">🔐 Login</button>
-      <div id="loginMessage" class="message"></div>
-    </div>
+  <!-- Login Section -->
+  <div id="loginSection">
+    <label for="employeeId">Select Employee ID</label>
+    <select id="employeeId">
+      <option value="">Loading...</option>
+    </select>
 
-    <!-- After Login -->
-    <div id="afterLogin" class="after-login">
-      <div class="message success" id="welcomeMessage"></div>
-      <div class="row-flex">
-        <div class="input-wrapper">
-          <select id="payPeriodSelect">
-            <option value="">-- Select Pay Period --</option>
-          </select>
-        </div>
-        <button id="viewPayslipBtn" class="btn blue">View Payslip</button>
-      </div>
-      <div id="payslipMessage" class="message"></div>
-      <div id="payslip-container"></div>
-      <button id="downloadBtn" class="btn blue" style="display:none; margin-top: 20px;" onclick="downloadAsPDF()">
-        <i class="fas fa-download"></i> Download Payslip PDF
-      </button>
-      <button id="logoutBtn" class="btn blue" style="background: #6b7280;">Logout</button>
-    </div>
+    <label for="username">Username</label>
+    <input type="text" id="username" placeholder="Enter Username" />
+
+    <label for="password">Password</label>
+    <input type="password" id="password" placeholder="Enter Password" />
+
+    <button onclick="handleLogin()">Login</button>
+    <div class="message" id="loginMessage"></div>
   </div>
 
-  <script>
-    // Replace with your Google Sheets CSV export URL (payslip data)
-    const payslipSheetUrl = "https://docs.google.com/spreadsheets/d/e/2PACX-1vQrLihmERkwNQcGyoYcEnpWBu732YOewgCZgjt6ylykJd0Mc68tETA3gh_MsmylaYfyHl6EvP7Taeee/pub?gid=0&single=true&output=csv";
-    // Replace with your Google Sheets CSV export URL (login credentials)
-    const loginSheetUrl = "https://docs.google.com/spreadsheets/d/e/2PACX-1vQrLihmERkwNQcGyoYcEnpWBu732YOewgCZgjt6ylykJd0Mc68tETA3gh_MsmylaYfyHl6EvP7Taeee/pub?gid=1&single=true&output=csv";
-    // Store data
-    let allPayslips = [];
-    let allCredentials = [];
-    let currentEmployee = null;
-    let availablePeriods = [];
-    let currentPayslip = null;
+  <!-- Pay Period Section -->
+  <div id="payPeriodSection" class="hidden">
+    <label for="payPeriod">Select Pay Period</label>
+    <select id="payPeriod">
+      <option value="">-- Select a Pay Period --</option>
+    </select>
+    <button onclick="showPayslip()">View Payslip</button>
+  </div>
 
-    // Fetch data from both sheets
-    Promise.all([
-      fetch(payslipSheetUrl).then(res => res.text()),
-      fetch(loginSheetUrl).then(res => res.text())
-    ]).then(([payslipCsv, loginCsv]) => {
-      // Parse payslip data
-      const payslipRows = payslipCsv.trim().split('\n').map(row => row.split(','));
-      const payslipHeaders = payslipRows[0].map(h => h.trim());
-      allPayslips = payslipRows.slice(1).map(row => {
-        let obj = {};
-        payslipHeaders.forEach((h, i) => obj[h] = row[i]?.trim());
-        return obj;
+  <!-- Payslip Display -->
+  <div id="payslipSection" class="hidden">
+    <div class="payslip-box" id="payslipContent"></div>
+    <button onclick="downloadAsPDF()">⬇ Download as PDF</button>
+  </div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+<script>
+  const csvUrl = 'https://docs.google.com/spreadsheets/d/e/YOUR_CSV_URL/pub?output=csv'; // Replace 👈
+
+  let allData = [];
+  let filteredEmployee = null;
+
+  // 👤 Load Employee IDs
+  fetch(csvUrl)
+    .then(res => res.text())
+    .then(csv => {
+      const rows = csv.trim().split('\n').map(row => row.split(',').map(cell => cell.trim()));
+      const headers = rows[0];
+      allData = rows.slice(1).map(r => Object.fromEntries(r.map((v, i) => [headers[i], v])));
+      const employeeIds = [...new Set(allData.map(r => r["Employee ID"]))];
+
+      const dropdown = document.getElementById("employeeId");
+      dropdown.innerHTML = '<option value="">-- Select Employee ID --</option>';
+      employeeIds.forEach(id => {
+        const opt = document.createElement("option");
+        opt.value = id;
+        opt.textContent = id;
+        dropdown.appendChild(opt);
       });
-
-      // Parse login data
-      const loginRows = loginCsv.trim().split('\n').map(row => row.split(','));
-      const loginHeaders = loginRows[0].map(h => h.trim());
-      allCredentials = loginRows.slice(1).map(row => {
-        let obj = {};
-        loginHeaders.forEach((h, i) => obj[h] = row[i]?.trim());
-        return obj;
-      });
-
-      // Attach login handler
-      document.getElementById('loginBtn').addEventListener('click', handleLogin);
-      document.getElementById('logoutBtn').addEventListener('click', handleLogout);
-      document.getElementById('viewPayslipBtn').addEventListener('click', viewSelectedPayslip);
-    }).catch(err => {
-      document.getElementById('loginMessage').textContent = 'Failed to load data. Please try again.';
-      document.getElementById('loginMessage').className = 'message error';
     });
 
-    // Login handler
-    function handleLogin() {
-      const empId = document.getElementById('employeeId').value.trim();
-      const username = document.getElementById('username').value.trim();
-      const password = document.getElementById('password').value.trim();
-      const message = document.getElementById('loginMessage');
+  // 🔐 Handle Login
+  function handleLogin() {
+    const empId = document.getElementById("employeeId").value.trim();
+    const username = document.getElementById("username").value.trim().toLowerCase();
+    const password = document.getElementById("password").value.trim();
+    const messageBox = document.getElementById("loginMessage");
 
-      if (!empId || !username || !password) {
-        message.textContent = 'Please fill all fields.';
-        message.className = 'message error';
-        return;
-      }
-
-      // Find matching credential
-      const credential = allCredentials.find(c =>
-        c['Employee ID'] === empId &&
-        c['Username'] === username &&
-        c['Password'] === password
-      );
-
-      if (!credential) {
-        message.textContent = 'Invalid credentials.';
-        message.className = 'message error';
-        return;
-      }
-
-      // Login successful!
-      message.textContent = '';
-      currentEmployee = { empId, username, name: credential['Employee Name'] || username };
-      document.getElementById('loginBox').style.display = 'none';
-      document.getElementById('afterLogin').style.display = 'block';
-      document.getElementById('welcomeMessage').textContent = `Welcome, ${currentEmployee.name}!`;
-
-      // Populate pay period dropdown (only periods available for this employee)
-      const periods = [...new Set(
-        allPayslips
-          .filter(p => p['Employee ID'] === empId)
-          .map(p => `${p['Month']}-${p['Year']}`)
-      )].sort((a, b) => {
-        const [ma, ya] = a.split('-');
-        const [mb, yb] = b.split('-');
-        return new Date(ya, ma - 1) - new Date(yb, mb - 1);
-      });
-      const select = document.getElementById('payPeriodSelect');
-      select.innerHTML = '<option value="">-- Select Pay Period --</option>';
-      periods.forEach(p => {
-        const opt = document.createElement('option');
-        opt.value = p;
-        opt.textContent = p;
-        select.appendChild(opt);
-      });
-      availablePeriods = periods;
+    if (!empId || !username || !password) {
+      messageBox.textContent = "Please fill all fields.";
+      return;
     }
 
-    // Logout handler
-    function handleLogout() {
-      currentEmployee = null;
-      document.getElementById('loginBox').style.display = 'block';
-      document.getElementById('afterLogin').style.display = 'none';
-      document.getElementById('employeeId').value = '';
-      document.getElementById('username').value = '';
-      document.getElementById('password').value = '';
-      document.getElementById('payslip-container').innerHTML = '';
-      document.getElementById('downloadBtn').style.display = 'none';
+    const match = allData.find(
+      r =>
+        r["Employee ID"] === empId &&
+        r["Username"].toLowerCase() === username &&
+        r["Password"] === password
+    );
+
+    if (!match) {
+      messageBox.textContent = "Invalid credentials. Try again.";
+      return;
     }
 
-    // Show payslip for selected period
-    function viewSelectedPayslip() {
-      const period = document.getElementById('payPeriodSelect').value;
-      const message = document.getElementById('payslipMessage');
-      const container = document.getElementById('payslip-container');
-      const downloadBtn = document.getElementById('downloadBtn');
+    filteredEmployee = match["Employee Name"];
+    messageBox.textContent = "";
 
-      if (!period) {
-        message.textContent = 'Please select a pay period.';
-        message.className = 'message error';
-        container.innerHTML = '';
-        downloadBtn.style.display = 'none';
-        return;
-      }
+    // Show Pay Periods
+    const options = allData
+      .filter(r => r["Employee ID"] === empId)
+      .map(r => `${r["Month"]}-${r["Year"]}`);
+    const dropdown = document.getElementById("payPeriod");
+    dropdown.innerHTML = '<option value="">-- Select a Pay Period --</option>';
+    [...new Set(options)].forEach(period => {
+      const opt = document.createElement("option");
+      opt.value = period;
+      opt.textContent = period;
+      dropdown.appendChild(opt);
+    });
 
-      // Find the payslip
-      const [month, year] = period.split('-');
-      const payslip = allPayslips.find(p =>
-        p['Employee ID'] === currentEmployee.empId &&
-        p['Month'] === month &&
-        p['Year'] === year
-      );
+    // Show next section
+    document.getElementById("loginSection").classList.add("hidden");
+    document.getElementById("payPeriodSection").classList.remove("hidden");
+  }
 
-      if (!payslip) {
-        message.textContent = 'No payslip found for this period.';
-        message.className = 'message error';
-        container.innerHTML = '';
-        downloadBtn.style.display = 'none';
-        return;
-      }
+  // 📄 Show Payslip
+  function showPayslip() {
+    const empId = document.getElementById("employeeId").value;
+    const period = document.getElementById("payPeriod").value;
+    const [month, year] = period.split('-');
 
-      message.textContent = '';
-      downloadBtn.style.display = 'block';
-      currentPayslip = payslip;
+    const record = allData.find(
+      r =>
+        r["Employee ID"] === empId &&
+        r["Month"] === month &&
+        r["Year"] === year
+    );
 
-      // Render the payslip (use your template!)
-      container.innerHTML = `
-        <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 16px;">
-          <table class="info-table">
-            <tr><td>Employee ID</td><td>: ${payslip['Employee ID'] || '-'}</td></tr>
-            <tr><td>Employee Name</td><td>: ${payslip['Employee Name'] || currentEmployee.name}</td></tr>
-            <tr><td>Project</td><td>: ${payslip['Project'] || '-'}</td></tr>
-            <tr><td>Designation</td><td>: ${payslip['Designation'] || '-'}</td></tr>
-            <tr><td>Date of Joining</td><td>: ${payslip['Date of Joining'] || '-'}</td></tr>
-            <tr><td>Pay Period</td><td>: ${month}-${year}</td></tr>
-            <tr><td>PF A/C Number</td><td>: ${payslip['PF A/C Number'] || '-'}</td></tr>
-            <tr><td>UAN Number</td><td>: ${payslip['UAN Number'] || '-'}</td></tr>
-          </table>
-          <div class="pay-box">
-            <div style="font-size: 1rem; color: #4b4b57;">TOTAL NET PAYABLE</div>
-            <div class="amount">₹ ${payslip['Net Pay'] || '0'}</div>
-            <div class="sub">
-              <div>Paid Days: ${payslip['Paid Days'] || '-'}</div>
-              <div>LOP Days: ${payslip['LOP Days'] || '-'}</div>
-            </div>
-          </div>
-        </div>
-        <div class="details-grid">
-          <div><span class="label">Working Days</span><span class="value">${payslip['Working Days'] || '-'}</span></div>
-          <div><span class="label">Leaves Taken</span><span class="value">${payslip['Leaves Taken'] || '-'}</span></div>
-          <div><span class="label">Days Worked</span><span class="value">${payslip['Days Worked'] || '-'}</span></div>
-          <div><span class="label">CL's Applied</span><span class="value">${payslip["CL's Applied"] || '-'}</span></div>
-          <div><span class="label">Leave Deductions</span><span class="value">₹ ${payslip['Leave Deductions'] || '-'}</span></div>
-        </div>
-        <table class="earn-deduct-table">
-          <thead><tr><th>Earnings</th><th>Amount</th><th>Deductions</th><th>Amount</th></tr></thead>
-          <tbody>
-            <tr><td>BASIC/DA</td><td>₹ ${payslip['BASIC/DA'] || '-'}</td><td>PF</td><td>₹ ${payslip['PF'] || '-'}</td></tr>
-            <tr><td>HRA</td><td>₹ ${payslip['HRA'] || '-'}</td><td>ESI</td><td>₹ ${payslip['ESI'] || '-'}</td></tr>
-            <tr><td>CCA</td><td>₹ ${payslip['CCA'] || '-'}</td><td>PT</td><td>₹ ${payslip['PT'] || '-'}</td></tr>
-            <tr><td>MEDICAL</td><td>₹ ${payslip['MEDICAL ALLOWANCE'] || '-'}</td><td></td><td></td></tr>
-            <tr><td>SPECIAL</td><td>₹ ${payslip['SPECIAL ALLOWANCE'] || '-'}</td><td></td><td></td></tr>
-            <tr class="foot-row">
-              <td>GROSS</td><td>₹ ${payslip['GROSS EARNINGS'] || '-'}</td>
-              <td>TOTAL DEDUCTIONS</td><td>₹ ${payslip['TOTAL DEDUCTIONS'] || '-'}</td>
-            </tr>
-          </tbody>
-        </table>
-        <div class="bottom-info">
-          TakeHome Salary: <span class="highlight">₹ ${payslip['TakeHome'] || '-'}</span>
-          <div class="in-words">Salary In Words: ${payslip['SALARY WORDS'] || '-'}</div>
-        </div>
-      `;
+    const box = document.getElementById("payslipContent");
+
+    if (!record) {
+      box.innerHTML = "<strong>No payslip found for selected period.</strong>";
+      return;
     }
 
-    // PDF Export
-    function downloadAsPDF() {
-      if (!currentPayslip) return;
-      const element = document.getElementById('payslip-container');
-      if (!element.innerHTML.trim()) return;
-      const opt = {
-        margin: 0.5,
-        filename: `Payslip_${currentEmployee.empId}_${document.getElementById('payPeriodSelect').value}.pdf`,
-        image: { type: 'jpeg', quality: 0.98 },
-        html2canvas: { scale: 2 },
-        jsPDF: { unit: 'in', format: 'A4', orientation: 'portrait' }
-      };
-      html2pdf().from(element).set(opt).save();
-    }
-  </script>
+    box.innerHTML = `
+      <h3>Payslip - ${month}-${year}</h3>
+      <p><strong>Employee Name:</strong> ${record["Employee Name"]}</p>
+      <p><strong>Designation:</strong> ${record["Designation"]}</p>
+      <p><strong>CTC:</strong> ₹${record["CTC"] || "N/A"}</p>
+      <p><strong>Take Home:</strong> ₹${record["TakeHome"] || "N/A"}</p>
+      <p><strong>PF:</strong> ₹${record["PF"] || "N/A"} | <strong>ESI:</strong> ₹${record["ESI"] || "N/A"}</p>
+    `;
+
+    document.getElementById("payslipSection").classList.remove("hidden");
+  }
+
+  // 📥 PDF Export
+  function downloadAsPDF() {
+    const element = document.getElementById("payslipContent");
+    const opt = {
+      margin: 0.5,
+      filename: `Payslip_${filteredEmployee}.pdf`,
+      image: { type: 'jpeg', quality: 0.98 },
+      html2canvas: { scale: 2 },
+      jsPDF: { unit: 'in', format: 'a4', orientation: 'portrait' }
+    };
+    html2pdf().from(element).set(opt).save();
+  }
+</script>
 </body>
 </html>
