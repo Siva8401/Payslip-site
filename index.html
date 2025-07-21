@@ -3,32 +3,48 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>MCC | Employee Payslip</title>
+  <title>Bloom Payslip | Mesmerizing View</title>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
   <style>
     :root {
       --primary: #e63946;
-      --background: #fdf0f0;
+      --background: #f5f8ff;
       --white: #ffffff;
       --gray: #6b7280;
       --light-gray: #e5e7eb;
       --green: #10b981;
       --red: #ef4444;
+      --blue: #4f5bd1;
+      --card-shadow: 0 10px 25px rgba(0,0,0,0.07);
+      --card-bg: linear-gradient(135deg, #f9fafb, #ffffff 70%);
     }
     body {
       font-family: 'Inter', sans-serif;
       background: var(--background);
       margin: 0;
       padding: 2rem;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
     }
     .card {
-      background: var(--white);
+      background: var(--card-bg);
+      width: 100%;
       max-width: 750px;
       margin: 0 auto;
       padding: 2rem;
-      border-radius: 1rem;
-      box-shadow: 0 10px 25px rgba(0,0,0,0.07);
+      border-radius: 1.2rem;
+      box-shadow: var(--card-shadow);
+      position: relative;
+      animation: fadeIn 0.6s ease-out;
+    }
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(-10px); }
+      to { opacity: 1; transform: translateY(0); }
     }
     .brand {
       text-align: center;
@@ -37,25 +53,30 @@
     .brand h1 {
       color: var(--primary);
       margin: 0;
+      font-size: 2rem;
+      font-weight: 800;
+      letter-spacing: 0.5px;
     }
     .brand p {
       color: var(--gray);
-      margin: 0;
+      margin: 0 0 1.5rem 0;
       font-size: 0.95rem;
     }
     h2 {
-      margin-bottom: 1rem;
+      margin: 1.4rem 0 1.2rem 0;
       font-size: 1.5rem;
-      color: var(--primary);
+      color: var(--blue);
+      text-align: center;
     }
-    select, input[type="password"], button, .password-wrapper {
+    select, input, .password-wrapper {
       width: 100%;
-      padding: 0.75rem;
+      padding: 0.8rem;
       font-size: 1rem;
       margin-bottom: 1rem;
       border: 1px solid var(--light-gray);
-      border-radius: 0.5rem;
+      border-radius: 0.6rem;
       box-sizing: border-box;
+      font-family: 'Inter', sans-serif;
     }
     .password-wrapper {
       display: flex;
@@ -65,6 +86,7 @@
     }
     .password-wrapper input {
       width: 100%;
+      margin: 0;
       padding-right: 40px;
     }
     .toggle-password {
@@ -74,45 +96,95 @@
       color: var(--gray);
       font-size: 1.2rem;
     }
-    .toggle-password::before {
-      content: "\1F441"; /* 👁 icon */
+    .toggle-password::after {
+      content: "\1F441"; /* 👁 */
     }
-    .toggle-password.show::before {
-      content: "\1F576"; /* 🕶 icon */
+    .toggle-password.show::after {
+      content: "\1F576"; /* 🕶 */
     }
-    button {
+    button, .btn {
+      width: 100%;
+      padding: 0.8rem !important;
       background: var(--primary);
-      color: var(--white);
+      color: var(--white) !important;
       font-weight: 600;
+      font-family: 'Inter', sans-serif;
+      border: none;
+      border-radius: 0.6rem;
       cursor: pointer;
+      font-size: 1rem;
       transition: background 0.3s;
+      margin: 0.5rem 0;
     }
     button:hover {
       background: #d62828;
     }
+    .btn.blue {
+      background: var(--blue);
+      color: var(--white);
+      margin: 1.5rem 0 0 0;
+    }
+    .btn.blue:hover {
+      background: #3b4ddd;
+    }
     .payslip {
       display: none;
       background: #fff8f8;
-      padding: 1.5rem;
+      padding: 1.6rem;
       border: 1px solid var(--primary);
-      border-radius: 0.75rem;
-      margin-top: 1.5rem;
-      text-align: left;
+      border-radius: 1rem;
+      margin: 1.5rem 0;
+      line-height: 2;
     }
     .payslip h3 {
-      margin-top: 0;
+      margin: 0 0 1rem 0;
       color: var(--primary);
+      border-bottom: 2px solid var(--primary);
+      padding-bottom: 0.5rem;
+    }
+    .payslip p {
+      margin: 0.4rem 0;
+    }
+    .payslip strong {
+      color: var(--gray);
     }
     .message {
-      font-size: 0.95rem;
+      font-size: 0.9rem;
       font-weight: 500;
       margin-bottom: 1rem;
+      text-align: center;
     }
     .message.error {
       color: var(--red);
+      font-weight: 600;
     }
     .message.success {
       color: var(--green);
+      font-weight: 600;
+    }
+    .stat-cards {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+      gap: 1rem;
+      margin: 1.2rem 0 0.5rem 0;
+    }
+    .stat-card {
+      background: var(--white);
+      border-radius: 0.8rem;
+      padding: 0.8rem;
+      text-align: center;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.07);
+    }
+    .stat-card h4 {
+      margin: 0 0 0.4rem 0;
+      font-size: 0.9rem;
+      color: var(--blue);
+    }
+    .stat-card p {
+      margin: 0;
+      font-size: 1.2rem;
+      font-weight: 600;
+      color: var(--primary);
     }
   </style>
 </head>
@@ -120,8 +192,9 @@
   <div class="card">
     <div class="brand">
       <h1>Bloom Electronics Pvt Ltd</h1>
+      <p>Employee Payslip Portal</p>
     </div>
-    <h2>🔐 Employee Payslip Viewer</h2>
+    <h2>🔐 Secure Payslip Viewer</h2>
     <select id="employeeSelect">
       <option value="">-- Select Employee --</option>
     </select>
@@ -132,10 +205,11 @@
     </div>
     <button id="submitBtn" style="display:none;">View Payslip</button>
     <div id="payslip" class="payslip"></div>
-    <div id="changePasswordBox" style="display:none; margin-top: 2rem;">
-      <h4>Change / Create Password</h4>
+    <button id="downloadBtn" class="btn blue" style="display:none;" onclick="downloadAsPDF()"><i class="fas fa-download"></i> Download Payslip PDF</button>
+    <div id="changePasswordBox" style="display:none; margin: 2rem 0 0.5rem 0;">
+      <div style="text-align:center; font-weight:600; margin-bottom:0.8rem;">🔐 Password Update</div>
       <div class="password-wrapper">
-        <input type="password" id="newPassword" placeholder="Enter New Password">
+        <input type="password" id="newPassword" placeholder="New Password">
         <span class="toggle-password" onclick="toggleVisibility(this, 'newPassword')"></span>
       </div>
       <div class="password-wrapper">
@@ -148,10 +222,12 @@
   </div>
 
   <script>
+    // Employee data
     const sheetUrl = "https://docs.google.com/spreadsheets/d/e/2PACX-1vQrLihmERkwNQcGyoYcEnpWBu732YOewgCZgjt6ylykJd0Mc68tETA3gh_MsmylaYfyHl6EvP7Taeee/pub?gid=0&single=true&output=csv";
     let employees = [];
     let selectedEmployee;
 
+    // Fetch data from Google Sheet
     fetch(sheetUrl)
       .then(res => res.text())
       .then(data => {
@@ -162,8 +238,8 @@
           headers.forEach((h, i) => obj[h.trim()] = row[i]?.trim());
           return obj;
         });
-
         const select = document.getElementById("employeeSelect");
+        select.innerHTML = '<option value="">-- Select Employee --</option>';
         employees.forEach(emp => {
           const opt = document.createElement("option");
           opt.value = emp["Employee Name"];
@@ -172,46 +248,86 @@
         });
       });
 
+    // Listen for employee selection
     document.getElementById("employeeSelect").addEventListener("change", () => {
       document.getElementById("passwordWrapper").style.display = "flex";
       document.getElementById("submitBtn").style.display = "block";
+      document.getElementById("payslip").style.display = "none";
+      document.getElementById("downloadBtn").style.display = "none";
+      document.getElementById("noPasswordMessage").style.display = "none";
+      document.getElementById("changePasswordBox").style.display = "none";
+      document.getElementById("passwordSuccess").style.display = "none";
     });
 
-    document.getElementById("submitBtn").addEventListener("click", () => {
+    // Submit password and show payslip
+    document.getElementById("submitBtn").addEventListener("click", validatePayslip);
+
+    function validatePayslip() {
       const selectedName = document.getElementById("employeeSelect").value;
       const enteredPassword = document.getElementById("passwordInput").value;
       const emp = employees.find(e => e["Employee Name"] === selectedName);
 
-      if (emp) {
-        if (!emp["Password"]) {
-          document.getElementById("noPasswordMessage").style.display = "block";
-          selectedEmployee = emp;
-          document.getElementById("changePasswordBox").style.display = "block";
-          document.getElementById("payslip").style.display = "none";
-        } else if (emp["Password"] === enteredPassword) {
-          selectedEmployee = emp;
-          document.getElementById("noPasswordMessage").style.display = "none";
-          document.getElementById("changePasswordBox").style.display = "block";
-
-          const box = document.getElementById("payslip");
-          box.style.display = "block";
-          box.innerHTML = `
-            <h3>${emp["Employee Name"]}</h3>
-            <p><strong>Designation:</strong> ${emp["Designation"] || 'N/A'}</p>
-            <p><strong>Region:</strong> ${emp["Region"]} | <strong>State:</strong> ${emp["State"]}</p>
-            <p><strong>Project:</strong> ${emp["Project"]}</p>
-            <p><strong>Date of Joining:</strong> ${emp["Date of Joining"]} | <strong>Appraisal Due:</strong> ${emp["Apprisal Due"]}</p>
-            <p><strong>CTC:</strong> ₹${emp["CTC"]} | <strong>Take Home:</strong> ₹${emp["Takehome"]} | <strong>OH:</strong> ${emp["OH"]}</p>
-            <p><strong>Leaves Taken:</strong> ${emp["Leaves Taken"] || 'N/A'}</p>
-          `;
-        } else {
-          alert("Invalid password. Please try again.");
-        }
-      } else {
+      if (!emp) {
         alert("Employee not found.");
+        return;
       }
-    });
 
+      // No password = set one
+      if (!emp["Password"]) {
+        selectedEmployee = emp;
+        document.getElementById("noPasswordMessage").style.display = "block";
+        document.getElementById("changePasswordBox").style.display = "block";
+        document.getElementById("payslip").style.display = "none";
+        document.getElementById("downloadBtn").style.display = "none";
+        return;
+      }
+
+      // Wrong password
+      if (emp["Password"] !== enteredPassword) {
+        alert("Invalid password. Please try again.");
+        return;
+      }
+
+      // Correct password! Show payslip.
+      selectedEmployee = emp;
+      document.getElementById("noPasswordMessage").style.display = "none";
+      document.getElementById("changePasswordBox").style.display = "block";
+      document.getElementById("payslip").style.display = "block";
+      document.getElementById("downloadBtn").style.display = "block";
+      generatePayslip(emp);
+    }
+
+    // Generate payslip HTML (modern, stat-cards, clear layout)
+    function generatePayslip(emp) {
+      const box = document.getElementById("payslip");
+      box.innerHTML = `
+        <h3>${emp["Employee Name"]}</h3>
+        <div class="stat-cards">
+          <div class="stat-card">
+            <h4>Gross</h4>
+            <p>₹${emp["CTC"] || "N/A"}</p>
+          </div>
+          <div class="stat-card">
+            <h4>Net</h4>
+            <p>₹${emp["Takehome"] || "N/A"}</p>
+          </div>
+          <div class="stat-card">
+            <h4>Tax</h4>
+            <p>₹${emp["TDS"] || "N/A"}</p>
+          </div>
+        </div>
+        <p><strong>Designation:</strong> ${emp["Designation"] || 'N/A'}</p>
+        <p><strong>Region:</strong> ${emp["Region"] || 'N/A'} | <strong>State:</strong> ${emp["State"] || 'N/A'}</p>
+        <p><strong>Project:</strong> ${emp["Project"] || 'N/A'}</p>
+        <p><strong>Date of Joining:</strong> ${emp["Date of Joining"] || 'N/A'} | <strong>Appraisal Due:</strong> ${emp["Apprisal Due"] || 'N/A'}</p>
+        <p><strong>OH:</strong> ${emp["OH"] || 'N/A'}</p>
+        <p><strong>Leaves Taken:</strong> ${emp["Leaves Taken"] || 'N/A'}</p>
+        <p><strong>PF:</strong> ₹${emp["PF"] || 'N/A'} | <strong>PT:</strong> ₹${emp["PT"] || 'N/A'}</p>
+        <p><strong>Bank Account:</strong> ${emp["Bank Account"] || 'N/A'}</p>
+      `;
+    }
+
+    // Password update (with SECRET_KEY)
     function updatePassword() {
       const newPass = document.getElementById("newPassword").value.trim();
       const confirmPass = document.getElementById("confirmPassword").value.trim();
@@ -222,16 +338,19 @@
       if (newPass !== confirmPass) return alert("Passwords do not match.");
       if (!selectedEmployee) return alert("No employee selected.");
 
-      const updateURL = `https://script.google.com/macros/s/AKfycbzfMKBGSuag1HCZXXoY-YOju-RN3NlbduMbxAWkm8GhxtYK4orgu7Lgflagq_RUISVcgQ/exec?name=${encodeURIComponent(selectedEmployee["Employee Name"])}&newPassword=${encodeURIComponent(newPass)}`;
+      const SECRET_KEY = "mccSecure2025"; // Set the same in your Apps Script
+      const updateURL = `https://script.google.com/macros/s/AKfycbzfMKBGSuag1HCZXXoY-YOju-RN3NlbduMbxAWkm8GhxtYK4orgu7Lgflagq_RUISVcgQ/exec?name=${encodeURIComponent(selectedEmployee["Employee Name"])}&newPassword=${encodeURIComponent(newPass)}&key=${SECRET_KEY}`;
 
       fetch(updateURL)
         .then(res => res.text())
         .then(msg => {
           msgBox.style.display = "block";
+          msgBox.textContent = msg;
         })
-        .catch(err => alert("Failed to update password."));
+        .catch(err => alert("Failed to update password. Please try again."));
     }
 
+    // Toggle password visibility
     function toggleVisibility(el, inputId) {
       const input = document.getElementById(inputId);
       if (input.type === "password") {
@@ -241,6 +360,19 @@
         input.type = "password";
         el.classList.remove("show");
       }
+    }
+
+    // Download as PDF
+    function downloadAsPDF() {
+      const element = document.getElementById("payslip");
+      const opt = {
+        margin: 0.5,
+        filename: `${selectedEmployee["Employee Name"]}_payslip.pdf`,
+        image: { type: 'jpeg', quality: 0.98 },
+        html2canvas: { scale: 2 },
+        jsPDF: { unit: 'in', format: 'A4', orientation: 'portrait' }
+      };
+      html2pdf().from(element).set(opt).save();
     }
   </script>
 </body>
