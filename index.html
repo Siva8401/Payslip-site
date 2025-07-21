@@ -4,227 +4,202 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Bloom Payslip Portal</title>
-  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/html2pdf.js@0.10.1/dist/html2pdf.bundle.min.js"></script>
   <style>
-    body {
-      font-family: 'Inter', sans-serif;
-      background: #f1f5f9;
-      margin: 0; padding: 20px;
-    }
-    .container {
-      max-width: 670px; background: #fff; margin: 0 auto; padding: 32px 30px 36px 30px;
-      border-radius: 18px; box-shadow: 0 8px 32px rgba(44,62,80,0.10);
-    }
-    h1 {text-align:center; color: #e63946;}
-    label { display: block; margin-top: 16px; margin-bottom: 6px; font-weight: 600; color: #374151; }
-    select, input {
-      width: 100%; padding: 10px; font-size: 1rem; border: 1px solid #e5e7eb; border-radius: 6px;
+    body { font-family: 'Inter', sans-serif; background: #f1f5f9; margin: 0; padding: 30px; }
+    .card { max-width: 700px; margin: 0 auto; background: white; padding: 30px; border-radius: 12px; box-shadow: 0 8px 32px rgba(0, 0, 0, 0.08); }
+    h1 { text-align: center; color: #e63946; }
+    label { display: block; margin-top: 14px; font-weight: 600; }
+    select, input, button {
+      width: 100%; padding: 10px; font-size: 1rem; margin-top: 6px;
+      border: 1px solid #ddd; border-radius: 6px; box-sizing: border-box;
     }
     button {
-      width:100%; margin-top:18px; padding:12px; font-size:1rem;
-      background:#e63946; color:white; border:none; border-radius:6px; cursor:pointer;
-      font-weight:600;
-      transition: background 0.22s;
+      background: #e63946; color: white; border: none; font-weight: 600; cursor: pointer;
+      margin-top: 18px;
     }
     button:hover { background: #d62828; }
     .hidden { display: none; }
-    .message { margin-top:14px; font-weight:bold; color: #e63946; }
-    .payslip-box {
-      background: #f3f4f6; padding: 24px 24px 20px 24px; border-radius: 10px; margin-top: 24px;
-    }
-    .row-flex { display:flex; flex-wrap:wrap; gap:18px; }
-    .left-block, .right-block { flex:1; min-width:220px; }
-    .info-table {margin-top:10px;}
-    .info-table td { padding:3px 4px; }
-    .section-title {margin:18px 0 9px;color:#23325a;font-weight:700;font-size:1.07rem;}
-    .subtle { color:#394867; font-style:italic; font-size:0.96rem; }
-    .paycell { background:#eaf0fa; border-radius:7px; padding:10px 18px; margin-top:14px;}
-    .paylabel {font-weight:600;color:#2b4871;}
-    .amount {font-size:1.28rem;color:#e63946;font-weight:bold;}
-    table.earn-deduct { width:100%; margin-top:18px; border-collapse:collapse; }
-    table.earn-deduct th, table.earn-deduct td { border-bottom:1px solid #e5e7eb; padding:9px 5px; }
-    table.earn-deduct th { color:#e63946;font-size:1.07rem;font-weight:700;}
-    table.earn-deduct td.right {text-align:right;}
-    .in-words { margin-top:10px; color:#294871; font-style:italic;}
+    .message { color: #e63946; font-weight: 500; margin-top: 10px; }
+    .success { color: green; }
+    .payslip { background: #f9fafb; padding: 20px; margin-top: 20px; border-radius: 8px; box-shadow: 0 0 10px rgba(0,0,0,0.03); }
+    .inline { display: inline-block; margin-right: 20px; }
   </style>
 </head>
 <body>
-<div class="container">
+<div class="card">
   <h1>🧾 Employee Payslip Portal</h1>
 
-  <!-- Login Step -->
-  <div id="loginSection">
-    <label for="employeeId">Employee ID</label>
-    <select id="employeeId">
-      <option value="">Loading...</option>
-    </select>
-    <label for="username">Username</label>
-    <input type="text" id="username" autocomplete="username" placeholder="Enter Username" />
+  <!-- Login Form -->
+  <div id="loginView">
+    <label>Employee ID</label>
+    <select id="employeeId"><option>Loading...</option></select>
 
-    <label for="password">Password</label>
-    <input type="password" id="password" autocomplete="current-password" placeholder="Enter Password" />
+    <label>Username</label>
+    <input type="text" id="username" placeholder="Enter Username" />
 
-    <button id="loginBtn">Login</button>
+    <label>Password</label>
+    <input type="password" id="password" placeholder="Enter Password" />
+
+    <button onclick="handleLogin()">Login</button>
     <div class="message" id="loginMessage"></div>
   </div>
 
-  <!-- Pay Period Step -->
-  <div id="periodSection" class="hidden">
-    <div style="font-weight:600; color:#10b981;">Login successful! Select Pay Period:</div>
-    <label for="payPeriod">Pay Period</label>
-    <select id="payPeriod"><option value="">-- Select a Pay Period --</option></select>
-    <button id="showPayslipBtn">View Payslip</button>
+  <!-- Pay Period View -->
+  <div id="payPeriodView" class="hidden">
+    <label>Select Pay Period</label>
+    <select id="payPeriod"><option>-- Select --</option></select>
+    <button onclick="loadPayslip()">View Payslip</button>
   </div>
 
-  <!-- Payslip View -->
-  <div id="payslipSection" class="hidden">
-    <div class="payslip-box" id="payslipContent"></div>
-    <button onclick="downloadPDF()">⬇ Download as PDF</button>
-    <button onclick="logout()" style="background:#666;margin-top:12px;">Logout</button>
+  <!-- Payslip Display -->
+  <div id="payslipView" class="hidden">
+    <div class="payslip" id="payslipDisplay"></div>
+    <button onclick="downloadPDF()">⬇ Download PDF</button>
+    <button onclick="showPasswordChange()">Change Password</button>
+    <button onclick="logout()" style="background:#666">Logout</button>
+  </div>
+
+  <!-- Password Update Form -->
+  <div id="passwordUpdate" class="hidden">
+    <label>New Password</label>
+    <input type="password" id="newPassword" />
+    <label>Confirm Password</label>
+    <input type="password" id="confirmPassword" />
+    <button onclick="updatePassword()">Update Password</button>
+    <div class="message" id="updateMsg"></div>
   </div>
 </div>
 
-<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
 <script>
-const csvUrl = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vQrLihmERkwNQcGyoYcEnpWBu732YOewgCZgjt6ylykJd0Mc68tETA3gh_MsmylaYfyHl6EvP7Taeee/pub?output=csv'; // Your CSV link
+  const CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vQrLihmERkwNQcGyoYcEnpWBu732YOewgCZgjt6ylykJd0Mc68tETA3gh_MsmylaYfyHl6EvP7Taeee/pub?output=csv';
+  const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxHs1Zb6ZHY6MhVbdsxPwwrV4glF8YzrmlLNdTLvW0sxElfmKoKmayVZlYw0nRzWOPqCg/exec';
+  const SECRET_KEY = 'mccSecure2025';
 
-let allData = [], loginUser = null;
+  let sheetData = [];
+  let currentUser = null;
 
-function populateEmployeeDropdown() {
-  const empSel = document.getElementById('employeeId');
-  empSel.innerHTML = '<option value="">-- Select Employee ID --</option>';
-  [...new Set(allData.map(r => r["Employee ID"]).filter(Boolean))].forEach(id => {
-    const opt = document.createElement('option');
-    opt.value = id; opt.textContent = id;
-    empSel.appendChild(opt);
-  });
-}
-function populatePeriodDropdown(employeeId) {
-  const periods = allData.filter(r => r["Employee ID"] == employeeId)
-    .map(r => `${r["Month"]}-${r["Year"]}`);
-  const periodSel = document.getElementById('payPeriod');
-  periodSel.innerHTML = '<option value="">-- Select a Pay Period --</option>';
-  [...new Set(periods)].forEach(p => {
-    const opt = document.createElement('option');
-    opt.value = p; opt.textContent = p;
-    periodSel.appendChild(opt);
-  });
-}
-function handleLogin() {
-  const empId = document.getElementById('employeeId').value;
-  const username = document.getElementById('username').value.trim();
-  const password = document.getElementById('password').value;
-  const msg = document.getElementById('loginMessage');
-  if(!empId || !username || !password) {
-    msg.textContent = "Fill all fields."; return;
-  }
-  const match = allData.find(
-    r => r["Employee ID"]===empId && r["Username"].toLowerCase()===username.toLowerCase() && r["Password"]===password
-  );
-  if(!match) { msg.textContent = "Invalid credentials."; return; }
-  msg.textContent = "";
-  loginUser = { id: empId, name: match["Employee Name"] };
-  document.getElementById('loginSection').classList.add("hidden");
-  document.getElementById('periodSection').classList.remove("hidden");
-  populatePeriodDropdown(empId);
-}
-function showPayslip() {
-  const empId = loginUser.id;
-  const period = document.getElementById('payPeriod').value;
-  if(!period) return;
-  const [month, year] = period.split("-");
-  const record = allData.find(r =>
-    r["Employee ID"] === empId && r["Month"] === month && r["Year"] === year
-  );
-  if(!record) return;
-  const content = document.getElementById("payslipContent");
-  // Rich formatted payslip
-  content.innerHTML = `
-    <div class="section-title">Payslip for ${month}-${year}</div>
-    <div class="row-flex">
-      <div class="left-block">
-        <table class="info-table">
-          <tr><td><b>Employee Name:</b></td><td>${record["Employee Name"]}</td></tr>
-          <tr><td><b>Designation:</b></td><td>${record["Designation"]}</td></tr>
-          <tr><td><b>Project:</b></td><td>${record["Project"]}</td></tr>
-          <tr><td><b>Date of Joining:</b></td><td>${record["Date of Joining"]}</td></tr>
-          <tr><td><b>Worked Days:</b></td><td>${record["Worked Days"]}</td></tr>
-        </table>
-      </div>
-      <div class="right-block">
-        <div class="paycell">
-          <div class="paylabel">Take Home Pay</div>
-          <div class="amount">₹${record["TAKEHOME"]||record["Take Home Salary"]||"-"}</div>
-        </div>
-        <div class="subtle" style="margin-top:10px;">Pay Period: ${month}-${year}</div>
-      </div>
-    </div>
-    <table class="earn-deduct">
-      <thead>
-        <tr><th>Earnings</th><th>Amount</th><th>Deductions</th><th>Amount</th></tr>
-      </thead>
-      <tbody>
-        <tr>
-          <td>Basic/DA</td><td>${record["BASIC/DA"]||record["BASIC"]||"-"}</td>
-          <td>PF</td><td class="right">${record["PF"]||"-"}</td>
-        </tr>
-        <tr>
-          <td>HRA</td><td>${record["HRA"]||"-"}</td>
-          <td>ESI</td><td class="right">${record["ESI"]||"-"}</td>
-        </tr>
-        <tr>
-          <td>CCA</td><td>${record["CCA"]||"-"}</td>
-          <td>PT</td><td class="right">${record["PT"]||"-"}</td>
-        </tr>
-        <tr>
-          <td>Medical Allowance</td><td>${record["MEDICAL ALLOWANCE"]||"-"}</td>
-          <td></td><td></td>
-        </tr>
-        <tr>
-          <td>Special Allowance</td><td>${record["SPECIAL ALLOWANCE"]||"-"}</td>
-          <td></td><td></td>
-        </tr>
-        <tr>
-          <td><b>Gross Earnings</b></td><td><b>${record["GROSS EARNINGS"]||"-"}</b></td>
-          <td><b>Total Deductions</b></td><td class="right"><b>${record["TOTAL DEDUCTIONS"]||"-"}</b></td>
-        </tr>
-      </tbody>
-    </table>
-    <div class="in-words">Salary in Words: ${record["SALARY WORDS"]||"-"}</div>
-  `;
-  document.getElementById('periodSection').classList.add("hidden");
-  document.getElementById('payslipSection').classList.remove("hidden");
-}
-function downloadPDF() {
-  html2pdf().from(document.getElementById("payslipContent")).set({
-    margin: 0.5,
-    filename: `Payslip_${loginUser.id}.pdf`,
-    image: { type: 'jpeg', quality: 0.98 },
-    html2canvas: { scale: 2 },
-    jsPDF: {unit: 'in', format: 'a4', orientation: 'portrait'}
-  }).save();
-}
-function logout() {
-  loginUser = null;
-  document.getElementById('loginSection').classList.remove("hidden");
-  document.getElementById('periodSection').classList.add("hidden");
-  document.getElementById('payslipSection').classList.add("hidden");
-  document.getElementById('username').value = '';
-  document.getElementById('password').value = '';
-  document.getElementById('loginMessage').textContent = '';
-}
-window.onload = () => {
-  fetch(csvUrl)
+  // Load CSV and populate Employee ID dropdown
+  fetch(CSV_URL)
     .then(res => res.text())
     .then(csv => {
-      const rows = csv.trim().split('\n').map(row => row.split(','));
-      const headers = rows[0].map(h => h.trim());
-      allData = rows.slice(1).map(r => Object.fromEntries(r.map((v,i) => [headers[i], v.trim()])));
-      populateEmployeeDropdown();
+      const [header, ...rows] = csv.trim().split('\n').map(r => r.split(','));
+      const headers = header.map(h => h.trim());
+      sheetData = rows.map(row => {
+        const values = {};
+        headers.forEach((h, i) => values[h] = row[i] ? row[i].trim() : '');
+        return values;
+      });
+
+      const empIds = [...new Set(sheetData.map(r => r["Employee ID"]).filter(Boolean))];
+      const dropdown = document.getElementById('employeeId');
+      dropdown.innerHTML = '<option value="">-- Select ID --</option>';
+      empIds.forEach(id => {
+        const opt = document.createElement('option');
+        opt.value = id; opt.textContent = id;
+        dropdown.appendChild(opt);
+      });
     });
-  document.getElementById('loginBtn').onclick = handleLogin;
-  document.getElementById('showPayslipBtn').onclick = showPayslip;
-}
+
+  function handleLogin() {
+    const empId = document.getElementById('employeeId').value;
+    const username = document.getElementById('username').value.trim();
+    const password = document.getElementById('password').value;
+
+    const match = sheetData.find(r =>
+      r["Employee ID"] === empId &&
+      r["Username"]?.toLowerCase() === username.toLowerCase() &&
+      r["Password"] === password
+    );
+
+    const msg = document.getElementById('loginMessage');
+    if (!match) {
+      msg.textContent = "🚫 Invalid credentials.";
+      return;
+    }
+
+    msg.textContent = "";
+    currentUser = match;
+
+    // Show pay periods available
+    const periods = sheetData
+      .filter(r => r["Employee ID"] === empId)
+      .map(r => `${r["Month"]}-${r["Year"]}`);
+
+    const paySelect = document.getElementById('payPeriod');
+    paySelect.innerHTML = '<option value="">-- Select --</option>';
+    [...new Set(periods)].forEach(p => {
+      const opt = document.createElement('option');
+      opt.value = p;
+      opt.textContent = p;
+      paySelect.appendChild(opt);
+    });
+
+    document.getElementById('loginView').classList.add('hidden');
+    document.getElementById('payPeriodView').classList.remove('hidden');
+  }
+
+  function loadPayslip() {
+    const [month, year] = document.getElementById('payPeriod').value.split('-');
+    const record = sheetData.find(r =>
+      r["Employee ID"] === currentUser["Employee ID"] &&
+      r["Month"] === month && r["Year"] === year);
+
+    if (!record) return alert('Payslip not found.');
+
+    const box = document.getElementById('payslipDisplay');
+    box.innerHTML = `
+      <h3>${record["Employee Name"] || ''} – ${month}-${year}</h3>
+      <p><strong>Designation:</strong> ${record["Designation"] || ''}</p>
+      <p><strong>Take Home:</strong> ₹${record["TAKEHOME"] || record["Takehome"] || '0'}</p>
+      <p><strong>Project:</strong> ${record["Project"] || '-'}</p>
+      <p><strong>Worked Days:</strong> ${record["Worked Days"] || '-'} | <strong>LOP:</strong> ${record["LOP Days"] || '-'}</p>
+      <p><strong>Gross:</strong> ₹${record["GROSS EARNINGS"] || '-'} | <strong>PF:</strong> ₹${record["PF"] || '-'} | <strong>PT:</strong> ₹${record["PT"] || '-'}</p>
+      <p><strong>Salary in Words:</strong> ${record["SALARY WORDS"] || '-'}</p>
+    `;
+
+    document.getElementById('payPeriodView').classList.add('hidden');
+    document.getElementById('payslipView').classList.remove('hidden');
+  }
+
+  function downloadPDF() {
+    const ele = document.getElementById('payslipDisplay');
+    html2pdf().from(ele).set({ filename: `payslip_${currentUser["Employee ID"]}.pdf` }).save();
+  }
+
+  function showPasswordChange() {
+    document.getElementById("passwordUpdate").classList.remove('hidden');
+  }
+
+  function updatePassword() {
+    const newP = document.getElementById("newPassword").value.trim();
+    const confirmP = document.getElementById("confirmPassword").value.trim();
+    const msgEl = document.getElementById("updateMsg");
+
+    if (!newP || !confirmP || newP !== confirmP) {
+      msgEl.textContent = "⚠️ Passwords do not match or are empty.";
+      return;
+    }
+
+    const url = `${SCRIPT_URL}?name=${encodeURIComponent(currentUser["Username"])}&newPassword=${encodeURIComponent(newP)}&key=${SECRET_KEY}`;
+    fetch(url)
+    .then(res => res.text())
+    .then(msg => {
+      msgEl.textContent = msg.includes("Success") ? "✅ Password updated!" : `❌ ${msg}`;
+    })
+    .catch(() => msgEl.textContent = "❌ Error connecting to server.");
+  }
+
+  function logout() {
+    currentUser = null;
+    document.getElementById("loginView").classList.remove("hidden");
+    document.getElementById("payPeriodView").classList.add("hidden");
+    document.getElementById("payslipView").classList.add("hidden");
+    document.getElementById("passwordUpdate").classList.add("hidden");
+    document.getElementById("username").value = '';
+    document.getElementById("password").value = '';
+  }
 </script>
 </body>
 </html>
