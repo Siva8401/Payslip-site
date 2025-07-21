@@ -3,371 +3,271 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Bloom Payslip | Mesmerizing View</title>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+  <title>Dynamic Payslip | Bloom Electronics</title>
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@700&family=Inter:wght@400;600&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
   <style>
     :root {
       --primary: #e63946;
-      --background: #f5f8ff;
-      --white: #ffffff;
+      --background: #f1f5f9;
+      --white: #fff;
       --gray: #6b7280;
       --light-gray: #e5e7eb;
-      --green: #10b981;
-      --red: #ef4444;
-      --blue: #4f5bd1;
-      --card-shadow: 0 10px 25px rgba(0,0,0,0.07);
-      --card-bg: linear-gradient(135deg, #f9fafb, #ffffff 70%);
+      --dark-blue: #23325a;
+      --border: #e3e8ef;
     }
     body {
       font-family: 'Inter', sans-serif;
       background: var(--background);
       margin: 0;
-      padding: 2rem;
+      padding: 40px 0;
       min-height: 100vh;
       display: flex;
       flex-direction: column;
       align-items: center;
-      justify-content: center;
     }
     .card {
-      background: var(--card-bg);
-      width: 100%;
+      background: var(--white);
       max-width: 750px;
       margin: 0 auto;
-      padding: 2rem;
-      border-radius: 1.2rem;
-      box-shadow: var(--card-shadow);
-      position: relative;
-      animation: fadeIn 0.6s ease-out;
-    }
-    @keyframes fadeIn {
-      from { opacity: 0; transform: translateY(-10px); }
-      to { opacity: 1; transform: translateY(0); }
-    }
-    .brand {
-      text-align: center;
-      margin-bottom: 2rem;
-    }
-    .brand h1 {
-      color: var(--primary);
-      margin: 0;
-      font-size: 2rem;
-      font-weight: 800;
-      letter-spacing: 0.5px;
-    }
-    .brand p {
-      color: var(--gray);
-      margin: 0 0 1.5rem 0;
-      font-size: 0.95rem;
-    }
-    h2 {
-      margin: 1.4rem 0 1.2rem 0;
-      font-size: 1.5rem;
-      color: var(--blue);
-      text-align: center;
-    }
-    select, input, .password-wrapper {
+      border-radius: 18px;
+      box-shadow: 0 10px 32px rgba(72, 105, 144, 0.12);
+      border: 1.5px solid var(--border);
+      padding: 30px 38px 36px 38px;
+      margin-bottom: 40px;
       width: 100%;
-      padding: 0.8rem;
-      font-size: 1rem;
-      margin-bottom: 1rem;
-      border: 1px solid var(--light-gray);
-      border-radius: 0.6rem;
-      box-sizing: border-box;
-      font-family: 'Inter', sans-serif;
     }
-    .password-wrapper {
-      display: flex;
-      align-items: center;
-      position: relative;
-      padding: 0;
+    .logo {
+      width: 84px; height: 84px; border-radius: 25px; margin-right: 22px;
+      background: #fef9c3; display: flex; align-items: center; justify-content: center;
     }
-    .password-wrapper input {
-      width: 100%;
-      margin: 0;
-      padding-right: 40px;
+    .logo img { width: 75px; height: 75px; }
+    .header {
+      display: flex; align-items: center; margin-bottom: 20px;
+      border-bottom: 3px solid var(--light-gray); padding-bottom: 10px;
     }
-    .toggle-password {
-      position: absolute;
-      right: 10px;
-      cursor: pointer;
-      color: var(--gray);
-      font-size: 1.2rem;
+    .header-text { flex: 1; }
+    .company {
+      font-family: 'Montserrat', sans-serif; font-weight: 700; color: var(--dark-blue); font-size: 1.22rem;
     }
-    .toggle-password::after {
-      content: "\1F441"; /* 👁 */
+    .address { font-size: 0.96rem; color: var(--gray); margin-top: 3px; }
+    .title { text-align: center; font-family: 'Montserrat', sans-serif; font-size: 1.18rem; font-weight: 700;
+      letter-spacing: 0.03em; margin: 18px 0 24px 0; color: var(--primary); text-shadow: 0 1px 1px #f1d9df;
     }
-    .toggle-password.show::after {
-      content: "\1F576"; /* 🕶 */
+    .controls { display: flex; gap: 20px; margin-bottom: 22px; flex-wrap: wrap; }
+    .select-wrapper { flex: 1; min-width: 200px; }
+    select, button, .btn { width: 100%; padding: 12px 16px; font-size: 1rem; border-radius: 8px;
+      border: 1px solid var(--light-gray); background: var(--white); font-family: 'Inter', sans-serif;
     }
-    button, .btn {
-      width: 100%;
-      padding: 0.8rem !important;
-      background: var(--primary);
-      color: var(--white) !important;
-      font-weight: 600;
-      font-family: 'Inter', sans-serif;
-      border: none;
-      border-radius: 0.6rem;
-      cursor: pointer;
-      font-size: 1rem;
-      transition: background 0.3s;
-      margin: 0.5rem 0;
+    button, .btn { background: var(--primary); color: var(--white); font-weight: 600; cursor: pointer;
+      transition: background 0.3s; border: none; margin-top: 0;
     }
-    button:hover {
-      background: #d62828;
+    button:hover { background: #d62828; }
+    .btn.blue { background: #4f5bd1; }
+    .btn.blue:hover { background: #3b4ddd; }
+    .info-table { font-size: 1rem; min-width: 350px; margin: 0 0 16px 0; }
+    .info-table td { padding: 4px 0; }
+    .info-table td:first-child { font-weight: 600; color: #4b4b57; }
+    .pay-box {
+      border: 2px solid #486990; background: #eaf0fa; border-radius: 12px; min-width: 180px; text-align: center;
+      padding: 12px 0; margin-left: 20px; color: #214095; font-family: 'Montserrat', sans-serif;
+      font-weight: 700; display: flex; flex-direction: column; justify-content: center;
     }
-    .btn.blue {
-      background: var(--blue);
-      color: var(--white);
-      margin: 1.5rem 0 0 0;
+    .pay-box .amount { font-size: 1.8rem; color: #0e2050; margin: 8px 0 4px 0; letter-spacing: 2px; }
+    .pay-box .sub { color: var(--primary); font-size: 1rem; font-weight: 600; }
+    .details-grid {
+      display: grid; grid-template-columns: 1fr 1fr; gap: 10px 18px; margin: 16px 0;
     }
-    .btn.blue:hover {
-      background: #3b4ddd;
+    .details-grid .label { font-weight: 600; color: #4b4b57; }
+    .details-grid .value { color: #2c3a52; }
+    .earn-deduct-table {
+      width: 100%; margin: 22px 0 5px 0; border-collapse: collapse; font-size: 1rem;
     }
-    .payslip {
-      display: none;
-      background: #fff8f8;
-      padding: 1.6rem;
-      border: 1px solid var(--primary);
-      border-radius: 1rem;
-      margin: 1.5rem 0;
-      line-height: 2;
+    .earn-deduct-table th, .earn-deduct-table td {
+      border-bottom: 1px solid var(--light-gray); padding: 9px 7px; text-align: left;
     }
-    .payslip h3 {
-      margin: 0 0 1rem 0;
-      color: var(--primary);
-      border-bottom: 2px solid var(--primary);
-      padding-bottom: 0.5rem;
-    }
-    .payslip p {
-      margin: 0.4rem 0;
-    }
-    .payslip strong {
-      color: var(--gray);
-    }
-    .message {
-      font-size: 0.9rem;
-      font-weight: 500;
-      margin-bottom: 1rem;
-      text-align: center;
-    }
-    .message.error {
-      color: var(--red);
-      font-weight: 600;
-    }
-    .message.success {
-      color: var(--green);
-      font-weight: 600;
-    }
-    .stat-cards {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
-      gap: 1rem;
-      margin: 1.2rem 0 0.5rem 0;
-    }
-    .stat-card {
-      background: var(--white);
-      border-radius: 0.8rem;
-      padding: 0.8rem;
-      text-align: center;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.07);
-    }
-    .stat-card h4 {
-      margin: 0 0 0.4rem 0;
-      font-size: 0.9rem;
-      color: var(--blue);
-    }
-    .stat-card p {
-      margin: 0;
-      font-size: 1.2rem;
-      font-weight: 600;
-      color: var(--primary);
-    }
+    .earn-deduct-table th { color: var(--primary); font-size: 1.1rem; font-weight: 700; }
+    .earn-deduct-table td:last-child { text-align: right; }
+    .foot-row td { border-bottom: 2px solid var(--primary) !important; font-weight: 700; }
+    .totals-row td { background: #f8d7da; font-weight: 700; color: var(--primary); }
+    .bottom-info { margin-top: 14px; color: var(--dark-blue); font-weight: 600; }
+    .in-words { font-size: 1rem; color: #386591; font-style: italic; margin-top: 6px; }
+    .highlight { color: var(--primary); font-weight: 700; }
+    .message { margin: 10px 0; color: var(--primary); font-weight: 600; text-align: center; }
+    #container { width: 100%; }
   </style>
 </head>
 <body>
   <div class="card">
-    <div class="brand">
-      <h1>Bloom Electronics Pvt Ltd</h1>
-      <p>Employee Payslip Portal</p>
-    </div>
-    <h2>🔐 Secure Payslip Viewer</h2>
-    <select id="employeeSelect">
-      <option value="">-- Select Employee --</option>
-    </select>
-    <div id="noPasswordMessage" class="message error" style="display:none;">No password set. Please create one below 👇</div>
-    <div class="password-wrapper" style="display:none;" id="passwordWrapper">
-      <input type="password" id="passwordInput" placeholder="Enter Password">
-      <span class="toggle-password" onclick="toggleVisibility(this, 'passwordInput')"></span>
-    </div>
-    <button id="submitBtn" style="display:none;">View Payslip</button>
-    <div id="payslip" class="payslip"></div>
-    <button id="downloadBtn" class="btn blue" style="display:none;" onclick="downloadAsPDF()"><i class="fas fa-download"></i> Download Payslip PDF</button>
-    <div id="changePasswordBox" style="display:none; margin: 2rem 0 0.5rem 0;">
-      <div style="text-align:center; font-weight:600; margin-bottom:0.8rem;">🔐 Password Update</div>
-      <div class="password-wrapper">
-        <input type="password" id="newPassword" placeholder="New Password">
-        <span class="toggle-password" onclick="toggleVisibility(this, 'newPassword')"></span>
+    <div class="header">
+      <div class="logo"><img src="https://i.ibb.co/7zgP0pg/bloom25.png" alt="Bloom Logo"></div>
+      <div class="header-text">
+        <div class="company">Bloom Electronics Private Limited</div>
+        <div class="address">365, Bharathiyar Rd, Siddhapudur, New Siddhapudur, Coimbatore, Tamil Nadu, Pincode - 641044</div>
       </div>
-      <div class="password-wrapper">
-        <input type="password" id="confirmPassword" placeholder="Confirm New Password">
-        <span class="toggle-password" onclick="toggleVisibility(this, 'confirmPassword')"></span>
-      </div>
-      <button onclick="updatePassword()">Update Password</button>
-      <div id="passwordSuccess" class="message success" style="display:none;">✅ Password updated successfully!</div>
     </div>
+    <div class="title">Salary Payslip for the Month of <span id="monthYear">Jan-2024</span></div>
+    <div class="controls">
+      <div class="select-wrapper">
+        <select id="employeeSelect">
+          <option value="">-- Select Employee --</option>
+        </select>
+      </div>
+      <div class="select-wrapper">
+        <select id="monthSelect">
+          <option value="">-- Select Month --</option>
+        </select>
+      </div>
+    </div>
+    <div id="message" class="message"></div>
+    <div id="payslip">
+      <!-- Dynamic content goes here -->
+    </div>
+    <button id="downloadBtn" class="btn blue" style="display:none; margin-top: 20px;" onclick="downloadAsPDF()">
+      <i class="fas fa-download"></i> Download Payslip PDF
+    </button>
   </div>
 
   <script>
-    // Employee data
+    // Replace with your Google Sheets CSV export URL
     const sheetUrl = "https://docs.google.com/spreadsheets/d/e/2PACX-1vQrLihmERkwNQcGyoYcEnpWBu732YOewgCZgjt6ylykJd0Mc68tETA3gh_MsmylaYfyHl6EvP7Taeee/pub?gid=0&single=true&output=csv";
+    let allPayslips = [];
     let employees = [];
-    let selectedEmployee;
+    let months = [];
 
-    // Fetch data from Google Sheet
+    // Fetch all data from Google Sheet
     fetch(sheetUrl)
       .then(res => res.text())
       .then(data => {
         const rows = data.trim().split('\n').map(row => row.split(','));
-        const headers = rows[0];
-        employees = rows.slice(1).map(row => {
+        const headers = rows[0].map(h => h.trim());
+        allPayslips = rows.slice(1).map(row => {
           let obj = {};
-          headers.forEach((h, i) => obj[h.trim()] = row[i]?.trim());
+          headers.forEach((h, i) => obj[h] = row[i]?.trim());
           return obj;
         });
-        const select = document.getElementById("employeeSelect");
-        select.innerHTML = '<option value="">-- Select Employee --</option>';
-        employees.forEach(emp => {
-          const opt = document.createElement("option");
-          opt.value = emp["Employee Name"];
-          opt.textContent = emp["Employee Name"];
-          select.appendChild(opt);
+
+        // Get unique employees and months
+        employees = [...new Set(allPayslips.map(p => p['Employee Name']))].filter(Boolean).sort();
+        months = [...new Set(allPayslips.map(p => `${p['Month']}-${p['Year']}`))].filter(Boolean).sort((a, b) => {
+          const [ma, ya] = a.split('-');
+          const [mb, yb] = b.split('-');
+          return new Date(ya, ma - 1) - new Date(yb, mb - 1);
         });
+
+        // Populate dropdowns
+        const empSelect = document.getElementById('employeeSelect');
+        employees.forEach(emp => {
+          const opt = document.createElement('option');
+          opt.value = emp;
+          opt.textContent = emp;
+          empSelect.appendChild(opt);
+        });
+
+        const monthSelect = document.getElementById('monthSelect');
+        months.forEach(m => {
+          const opt = document.createElement('option');
+          opt.value = m;
+          opt.textContent = m;
+          monthSelect.appendChild(opt);
+        });
+
+        // Listen for changes
+        empSelect.addEventListener('change', updatePayslip);
+        monthSelect.addEventListener('change', updatePayslip);
       });
 
-    // Listen for employee selection
-    document.getElementById("employeeSelect").addEventListener("change", () => {
-      document.getElementById("passwordWrapper").style.display = "flex";
-      document.getElementById("submitBtn").style.display = "block";
-      document.getElementById("payslip").style.display = "none";
-      document.getElementById("downloadBtn").style.display = "none";
-      document.getElementById("noPasswordMessage").style.display = "none";
-      document.getElementById("changePasswordBox").style.display = "none";
-      document.getElementById("passwordSuccess").style.display = "none";
-    });
+    // Update payslip display
+    function updatePayslip() {
+      const empName = document.getElementById('employeeSelect').value;
+      const monthYear = document.getElementById('monthSelect').value;
+      const message = document.getElementById('message');
+      const payslipContainer = document.getElementById('payslip');
+      const downloadBtn = document.getElementById('downloadBtn');
 
-    // Submit password and show payslip
-    document.getElementById("submitBtn").addEventListener("click", validatePayslip);
-
-    function validatePayslip() {
-      const selectedName = document.getElementById("employeeSelect").value;
-      const enteredPassword = document.getElementById("passwordInput").value;
-      const emp = employees.find(e => e["Employee Name"] === selectedName);
-
-      if (!emp) {
-        alert("Employee not found.");
+      if (!empName || !monthYear) {
+        message.textContent = 'Please select both Employee and Month.';
+        payslipContainer.innerHTML = '';
+        downloadBtn.style.display = 'none';
         return;
       }
 
-      // No password = set one
-      if (!emp["Password"]) {
-        selectedEmployee = emp;
-        document.getElementById("noPasswordMessage").style.display = "block";
-        document.getElementById("changePasswordBox").style.display = "block";
-        document.getElementById("payslip").style.display = "none";
-        document.getElementById("downloadBtn").style.display = "none";
+      const [month, year] = monthYear.split('-');
+      const payslip = allPayslips.find(p =>
+        p['Employee Name'] === empName &&
+        p['Month'] === month &&
+        p['Year'] === year
+      );
+
+      if (!payslip) {
+        message.textContent = 'No payslip found for this employee and month.';
+        payslipContainer.innerHTML = '';
+        downloadBtn.style.display = 'none';
         return;
       }
 
-      // Wrong password
-      if (emp["Password"] !== enteredPassword) {
-        alert("Invalid password. Please try again.");
-        return;
-      }
+      message.textContent = '';
+      document.getElementById('monthYear').textContent = `${month}-${year}`;
 
-      // Correct password! Show payslip.
-      selectedEmployee = emp;
-      document.getElementById("noPasswordMessage").style.display = "none";
-      document.getElementById("changePasswordBox").style.display = "block";
-      document.getElementById("payslip").style.display = "block";
-      document.getElementById("downloadBtn").style.display = "block";
-      generatePayslip(emp);
-    }
-
-    // Generate payslip HTML (modern, stat-cards, clear layout)
-    function generatePayslip(emp) {
-      const box = document.getElementById("payslip");
-      box.innerHTML = `
-        <h3>${emp["Employee Name"]}</h3>
-        <div class="stat-cards">
-          <div class="stat-card">
-            <h4>Gross</h4>
-            <p>₹${emp["CTC"] || "N/A"}</p>
-          </div>
-          <div class="stat-card">
-            <h4>Net</h4>
-            <p>₹${emp["Takehome"] || "N/A"}</p>
-          </div>
-          <div class="stat-card">
-            <h4>Tax</h4>
-            <p>₹${emp["TDS"] || "N/A"}</p>
+      // Generate HTML
+      payslipContainer.innerHTML = `
+        <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 16px;">
+          <table class="info-table">
+            <tr><td>Employee ID</td><td>: ${payslip['Employee ID'] || '-'}</td></tr>
+            <tr><td>Employee Name</td><td>: ${empName}</td></tr>
+            <tr><td>Project</td><td>: ${payslip['Project'] || '-'}</td></tr>
+            <tr><td>Designation</td><td>: ${payslip['Designation'] || '-'}</td></tr>
+            <tr><td>Date of Joining</td><td>: ${payslip['Date of Joining'] || '-'}</td></tr>
+            <tr><td>Pay Period</td><td>: ${month}-${year}</td></tr>
+            <tr><td>PF A/C Number</td><td>: ${payslip['PF A/C Number'] || '-'}</td></tr>
+            <tr><td>UAN Number</td><td>: ${payslip['UAN Number'] || '-'}</td></tr>
+          </table>
+          <div class="pay-box">
+            <div style="font-size: 1rem; color: #4b4b57;">TOTAL NET PAYABLE</div>
+            <div class="amount">₹ ${payslip['Net Pay'] || '0'}</div>
+            <div class="sub">
+              <div>Paid Days: ${payslip['Paid Days'] || '-'}</div>
+              <div>LOP Days: ${payslip['LOP Days'] || '-'}</div>
+            </div>
           </div>
         </div>
-        <p><strong>Designation:</strong> ${emp["Designation"] || 'N/A'}</p>
-        <p><strong>Region:</strong> ${emp["Region"] || 'N/A'} | <strong>State:</strong> ${emp["State"] || 'N/A'}</p>
-        <p><strong>Project:</strong> ${emp["Project"] || 'N/A'}</p>
-        <p><strong>Date of Joining:</strong> ${emp["Date of Joining"] || 'N/A'} | <strong>Appraisal Due:</strong> ${emp["Apprisal Due"] || 'N/A'}</p>
-        <p><strong>OH:</strong> ${emp["OH"] || 'N/A'}</p>
-        <p><strong>Leaves Taken:</strong> ${emp["Leaves Taken"] || 'N/A'}</p>
-        <p><strong>PF:</strong> ₹${emp["PF"] || 'N/A'} | <strong>PT:</strong> ₹${emp["PT"] || 'N/A'}</p>
-        <p><strong>Bank Account:</strong> ${emp["Bank Account"] || 'N/A'}</p>
+        <div class="details-grid">
+          <div><span class="label">Working Days</span><span class="value">${payslip['Working Days'] || '-'}</span></div>
+          <div><span class="label">Leaves Taken</span><span class="value">${payslip['Leaves Taken'] || '-'}</span></div>
+          <div><span class="label">Days Worked</span><span class="value">${payslip['Days Worked'] || '-'}</span></div>
+          <div><span class="label">CL's Applied</span><span class="value">${payslip["CL's Applied"] || '-'}</span></div>
+          <div><span class="label">Leave Deductions</span><span class="value">₹ ${payslip['Leave Deductions'] || '-'}</span></div>
+        </div>
+        <table class="earn-deduct-table">
+          <thead><tr><th>Earnings</th><th>Amount</th><th>Deductions</th><th>Amount</th></tr></thead>
+          <tbody>
+            <tr><td>BASIC/DA</td><td>₹ ${payslip['BASIC/DA'] || '-'}</td><td>PF</td><td>₹ ${payslip['PF'] || '-'}</td></tr>
+            <tr><td>HRA</td><td>₹ ${payslip['HRA'] || '-'}</td><td>ESI</td><td>₹ ${payslip['ESI'] || '-'}</td></tr>
+            <tr><td>CCA</td><td>₹ ${payslip['CCA'] || '-'}</td><td>PT</td><td>₹ ${payslip['PT'] || '-'}</td></tr>
+            <tr><td>MEDICAL</td><td>₹ ${payslip['MEDICAL ALLOWANCE'] || '-'}</td><td></td><td></td></tr>
+            <tr><td>SPECIAL</td><td>₹ ${payslip['SPECIAL ALLOWANCE'] || '-'}</td><td></td><td></td></tr>
+            <tr class="foot-row">
+              <td>GROSS</td><td>₹ ${payslip['GROSS EARNINGS'] || '-'}</td>
+              <td>TOTAL DEDUCTIONS</td><td>₹ ${payslip['TOTAL DEDUCTIONS'] || '-'}</td>
+            </tr>
+          </tbody>
+        </table>
+        <div class="bottom-info">
+          TakeHome Salary: <span class="highlight">₹ ${payslip['TakeHome'] || '-'}</span>
+          <div class="in-words">Salary In Words: ${payslip['SALARY WORDS'] || '-'}</div>
+        </div>
       `;
+      downloadBtn.style.display = 'block';
     }
 
-    // Password update (with SECRET_KEY)
-    function updatePassword() {
-      const newPass = document.getElementById("newPassword").value.trim();
-      const confirmPass = document.getElementById("confirmPassword").value.trim();
-      const msgBox = document.getElementById("passwordSuccess");
-      msgBox.style.display = "none";
-
-      if (!newPass || !confirmPass) return alert("Please enter both password fields.");
-      if (newPass !== confirmPass) return alert("Passwords do not match.");
-      if (!selectedEmployee) return alert("No employee selected.");
-
-      const SECRET_KEY = "mccSecure2025"; // Set the same in your Apps Script
-      const updateURL = `https://script.google.com/macros/s/AKfycbzfMKBGSuag1HCZXXoY-YOju-RN3NlbduMbxAWkm8GhxtYK4orgu7Lgflagq_RUISVcgQ/exec?name=${encodeURIComponent(selectedEmployee["Employee Name"])}&newPassword=${encodeURIComponent(newPass)}&key=${SECRET_KEY}`;
-
-      fetch(updateURL)
-        .then(res => res.text())
-        .then(msg => {
-          msgBox.style.display = "block";
-          msgBox.textContent = msg;
-        })
-        .catch(err => alert("Failed to update password. Please try again."));
-    }
-
-    // Toggle password visibility
-    function toggleVisibility(el, inputId) {
-      const input = document.getElementById(inputId);
-      if (input.type === "password") {
-        input.type = "text";
-        el.classList.add("show");
-      } else {
-        input.type = "password";
-        el.classList.remove("show");
-      }
-    }
-
-    // Download as PDF
+    // PDF Export
     function downloadAsPDF() {
-      const element = document.getElementById("payslip");
+      const element = document.getElementById('payslip');
+      if (!element.innerHTML.trim()) return alert('No payslip to download.');
       const opt = {
         margin: 0.5,
-        filename: `${selectedEmployee["Employee Name"]}_payslip.pdf`,
+        filename: `Payslip_${document.getElementById('employeeSelect').value}_${document.getElementById('monthSelect').value}.pdf`,
         image: { type: 'jpeg', quality: 0.98 },
         html2canvas: { scale: 2 },
         jsPDF: { unit: 'in', format: 'A4', orientation: 'portrait' }
